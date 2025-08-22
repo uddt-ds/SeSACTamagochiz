@@ -23,6 +23,8 @@ final class NameChangeViewModel: RxViewModelProtocol {
 
     struct Output {
         let nicknameResult: PublishSubject<String>
+        let validateResult: PublishSubject<String>
+        let validateError: PublishSubject<String>
     }
 
     init(currentNickname: String) {
@@ -33,14 +35,27 @@ final class NameChangeViewModel: RxViewModelProtocol {
 
         let newNickname = PublishSubject<String>()
 
-        // TODO: 조건 예외처리 들어가야함
+        let validateResult = PublishSubject<String>()
+        let validateError = PublishSubject<String>()
+
         input.saveButtonTapped
+            .throttle(.milliseconds(5), scheduler: MainScheduler.instance)
             .withLatestFrom(input.nicknameText)
+            .map { $0.count >= 2 && $0.count <= 6 }
+            .map { $0 ? "" : "닉네임은 2글자 이상, 6글자 이하로만 설정해야해요" }
             .bind(with: self) { owner, value in
-                newNickname.onNext(value)
+                validateError.onNext(value)
             }
             .disposed(by: disposeBag)
 
-        return Output(nicknameResult: newNickname)
+        input.saveButtonTapped
+            .throttle(.milliseconds(5), scheduler: MainScheduler.instance)
+            .withLatestFrom(input.nicknameText)
+            .bind(with: self) { owner, value in
+                validateResult.onNext(value)
+            }
+            .disposed(by: disposeBag)
+
+        return Output(nicknameResult: newNickname, validateResult: validateResult, validateError: validateError)
     }
 }
