@@ -51,6 +51,7 @@ final class NameChangeViewController: UIViewController {
     init(viewModel: NameChangeViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
+        self.textField.text = viewModel.nickname
     }
 
     @available(*, unavailable)
@@ -59,7 +60,7 @@ final class NameChangeViewController: UIViewController {
     }
     
     private func setupNav() {
-        navigationItem.title = "\(viewModel.nickname)"
+        navigationItem.title = "대장님 이름 정하기"
         navigationItem.rightBarButtonItem = .init(customView: saveButton)
     }
 
@@ -74,7 +75,7 @@ final class NameChangeViewController: UIViewController {
         }
 
         underLine.snp.makeConstraints { make in
-            make.top.equalTo(textField.snp.bottom)
+            make.top.equalTo(textField.snp.bottom).offset(4)
             make.directionalHorizontalEdges.equalTo(textField)
             make.height.equalTo(1)
         }

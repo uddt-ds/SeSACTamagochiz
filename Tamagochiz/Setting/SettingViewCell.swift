@@ -91,6 +91,7 @@ final class SettingViewCell: UITableViewCell, ReusableViewProtocol {
     func configureCell(with data: TableViewDataModel, isHidden: Bool) {
         menuLabel.text = data.title
         leftImageView.image = UIImage(systemName: data.image)
+        subLabel.text = data.nickname
         subLabel.isHidden = isHidden
     }
 }

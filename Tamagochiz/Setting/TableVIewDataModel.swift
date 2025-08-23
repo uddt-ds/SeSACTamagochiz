@@ -8,6 +8,7 @@
 import Foundation
 
 struct TableViewDataModel {
+    let nickname: String
     let image: String
     let title: String
 }
