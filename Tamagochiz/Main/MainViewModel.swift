@@ -15,7 +15,6 @@ final class MainViewModel: RxViewModelProtocol {
 
     let userDefaultData = UserDefaultsStore.userData
 
-    // UserDefault 전체 데이터 만들기
     struct Input {
         let viewDidLoadTrigger: Observable<Void>
         let feedTextField: ControlProperty<String>
@@ -30,6 +29,8 @@ final class MainViewModel: RxViewModelProtocol {
         let waterCount: BehaviorRelay<Int>
         let totalResult: BehaviorRelay<String>
         let tamagochiMessage: BehaviorRelay<String>
+        let feedErrorMessage: BehaviorRelay<String>
+        let waterErrorMessage: BehaviorRelay<String>
     }
 
     func transform(input: Input) -> Output {
@@ -62,7 +63,7 @@ final class MainViewModel: RxViewModelProtocol {
         input.feedButtonTapped
             .withLatestFrom(input.feedTextField)
             .compactMap { Int($0) }
-            .map { $0 == 0 || $0 > 100 }
+            .map { $0 == 0 && $0 > 100 }
             .map { $0 ? "" : "밥은 한번에 99개까지만 먹일 수 있어요" }
             .asDriver(onErrorJustReturn: "")
             .drive(with: self) { owner, value in
@@ -73,7 +74,7 @@ final class MainViewModel: RxViewModelProtocol {
         input.waterButtonTapped
             .withLatestFrom(input.waterTextField)
             .compactMap { Int($0) }
-            .map { $0 == 0 || $0 > 50 }
+            .map { $0 == 0 && $0 > 50 }
             .map { $0 ? "" : "밥은 한번에 49개까지만 먹일 수 있어요" }
             .asDriver(onErrorJustReturn: "")
             .drive(with: self) { owner, value in
@@ -108,7 +109,7 @@ final class MainViewModel: RxViewModelProtocol {
             .disposed(by: disposeBag)
 
 
-        return Output(userData: userData, feedCount: feedCount, waterCount: waterCount, totalResult: totalResult, tamagochiMessage: greetingMessage)
+        return Output(userData: userData, feedCount: feedCount, waterCount: waterCount, totalResult: totalResult, tamagochiMessage: greetingMessage, feedErrorMessage: feedErrorMessage, waterErrorMessage: waterErrorMessage)
     }
 
 }
