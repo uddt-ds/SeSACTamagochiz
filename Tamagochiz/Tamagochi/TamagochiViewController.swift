@@ -7,16 +7,18 @@
 
 import UIKit
 import SnapKit
+import RxSwift
+import RxCocoa
 
 final class TamagochiViewController: UIViewController {
+
+    var disposeBag = DisposeBag()
 
     let viewModel = TamagochiViewModel()
 
     private lazy var collectionView: UICollectionView = {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
         collectionView.register(TamagochiCell.self, forCellWithReuseIdentifier: TamagochiCell.identifier)
-        collectionView.delegate = self
-        collectionView.dataSource = self
         return collectionView
     }()
 
@@ -25,6 +27,7 @@ final class TamagochiViewController: UIViewController {
         configureHierarchy()
         configureLayout()
         configureView()
+        bind()
     }
 
     private func makeCollectionViewLayout() -> UICollectionViewFlowLayout {
@@ -40,17 +43,16 @@ final class TamagochiViewController: UIViewController {
         let bottomInset = Tama.bottomInset.configure
 
         let itemWidth = (safeAreaFrame.width - (leftInset + rightInset) - (lineSpacing * 2)) / 3
-        let itemHeight = (safeAreaFrame.height - (topInset + bottomInset) - (itemSpacing * 5)) / 5.2
+        let itemHeight = itemWidth + 16 + 4
 
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
         layout.minimumLineSpacing = lineSpacing
         layout.minimumInteritemSpacing = itemSpacing
-        layout.sectionInset = UIEdgeInsets(top: Tama.topInset.configure,
-                                           left: Tama.leftInset.configure,
-                                           bottom: Tama.bottomInset.configure,
-                                           right: Tama.rightInset.configure)
-
+        layout.sectionInset = UIEdgeInsets(top: topInset,
+                                           left: leftInset,
+                                           bottom: bottomInset,
+                                           right: rightInset)
 
         layout.itemSize = CGSize(width: itemWidth, height: itemHeight)
 
@@ -59,7 +61,6 @@ final class TamagochiViewController: UIViewController {
 
     override func viewDidLayoutSubviews() {
         collectionView.collectionViewLayout = makeCollectionViewLayout()
-
     }
 
     private func configureHierarchy() {
@@ -77,29 +78,26 @@ final class TamagochiViewController: UIViewController {
         collectionView.backgroundColor = .clear
         view.backgroundColor = .white
     }
+
+    private func bind() {
+        let viewDidLoadtrigger = PublishRelay<Void>()
+
+        let input = TamagochiViewModel.Input(viewDidLoadTrigger: viewDidLoadtrigger)
+
+        let output = viewModel.transform(input: input)
+
+        output.tamagochiRawData
+            .bind(to: collectionView.rx.items) { (collectionView, row, element) in
+                let indexPath = IndexPath(row: row, section: 0)
+                guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: TamagochiCell.identifier, for: indexPath) as? TamagochiCell else { return .init() }
+                cell.configureCell(with: element)
+                return cell
+            }
+            .disposed(by: disposeBag)
+    }
 }
 
-extension TamagochiViewController: UICollectionViewDataSource, UICollectionViewDelegate {
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        20
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        switch indexPath.row {
-        case 0...2:
-            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: TamagochiCell.identifier, for: indexPath) as? TamagochiCell else { return .init() }
-            cell.configureCell(with: viewModel.tamagochiData[indexPath.row])
-            return cell
-        default:
-            let tamagochiData = TamagochiModel(name: "준비중이에요", image: "noImage")
-            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: TamagochiCell.identifier, for: indexPath) as? TamagochiCell else { return .init() }
-            cell.configureCell(with: tamagochiData)
-            return cell
-        }
-    }
-    
 
-}
 
 extension TamagochiViewController {
     enum TamagochiConfigureSet {

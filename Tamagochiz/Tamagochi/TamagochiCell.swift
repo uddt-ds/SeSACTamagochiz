@@ -14,10 +14,7 @@ final class TamagochiCell: UICollectionViewCell, ReusableViewProtocol {
     let imageView: UIImageView = {
         let imageView = UIImageView()
         imageView.image = ._1_1
-        imageView.layer.borderWidth = 2
-        imageView.layer.borderColor = UIColor.black.cgColor
         imageView.contentMode = .scaleAspectFill
-        imageView.layer.cornerRadius = 51
         imageView.clipsToBounds = true
         imageView.isUserInteractionEnabled = true
         return imageView
@@ -41,7 +38,6 @@ final class TamagochiCell: UICollectionViewCell, ReusableViewProtocol {
         stackView.distribution = .fillProportionally
         return stackView
     }()
-
 
     override init(frame: CGRect) {
         super.init(frame: frame)
