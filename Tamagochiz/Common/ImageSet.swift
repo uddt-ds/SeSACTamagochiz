@@ -14,9 +14,9 @@ enum TamaCategory: Int {
 
     func getImage(with level: Int) -> UIImage {
         switch self {
-        case tama1: return UIImage(named: "\(tama1.rawValue)-\(level)")
-        case tama2: return UIImage(named: "\(tama2.rawValue)-\(level)")
-        case tama3: return UIImage(named: "\(tama3.rawValue)-\(level)")
+        case .tama1: return UIImage(named: "\(TamaCategory.tama1.rawValue)-\(level)") ?? UIImage()
+        case .tama2: return UIImage(named: "\(TamaCategory.tama2.rawValue)-\(level)") ?? UIImage()
+        case .tama3: return UIImage(named: "\(TamaCategory.tama3.rawValue)-\(level)") ?? UIImage()
         }
     }
 }
