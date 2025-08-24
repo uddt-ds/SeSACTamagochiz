@@ -6,8 +6,11 @@
 //
 
 import Foundation
+import RxSwift
 
 protocol RxViewModelProtocol {
+    var disposeBag: DisposeBag { get set }
+    
     associatedtype Input
     associatedtype Output
 
