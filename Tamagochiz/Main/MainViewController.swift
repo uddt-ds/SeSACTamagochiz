@@ -34,14 +34,37 @@ final class MainViewController: UIViewController {
 
     @IBOutlet var profileButton: UIButton!
 
-    var nickname: String = "대장"
-    var level: Int = 1
-    var foodCount: Int = 0
-    var waterCount: Int = 0
+    //프로퍼티에 didSet을 달아두면 알아서 userDefaults에 저장이 됨
+    //해야하는 동작
+    //1. VC에서 밥 버튼을 누르면 1을 더하고 UserDefault에 저장
+    //2. VC에서 물 버튼을 누르면 1을 더하고 UserDefault에 저장
+    //3.
+    var nickname: String = "대장" {
+        didSet {
+            UserDefaults.standard.set(nickname, forKey: "nickname")
+        }
+    }
+    var level: Int = 0 {
+        didSet {
+            UserDefaults.standard.set(level, forKey: "level")
+        }
+    }
+    var foodCount: Int = 0 {
+        didSet {
+            UserDefaults.standard.set(foodCount, forKey: "food")
+        }
+    }
 
-    @BaseUserDefaults(key: UserDefaultKey.userData.rawValue,
-                      defaultValue: UserModel(nickname: "대장", level: 0, foodCount: 0, waterCount: 0))
-    var userData: UserModel
+    var waterCount: Int = 0 {
+        didSet {
+            UserDefaults.standard.set(waterCount, forKey: "water")
+        }
+    }
+
+    let foodValue = BehaviorRelay(value: 0)
+    let foodError = BehaviorRelay(value: "")
+    let waterValue = BehaviorRelay(value: 0)
+    let waterError = BehaviorRelay(value: "")
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -59,72 +82,65 @@ final class MainViewController: UIViewController {
         designTextFieldUI()
         designProfileButton()
         bind()
+
 //        loadData()
 //        updateState()
     }
 
     private func bind() {
+        foodButton.rx.tap
+            .withLatestFrom(foodTextField.rx.text.orEmpty)
+            .map { $0.isEmpty ? "1" : $0 }
+            .compactMap { Int($0) }
+            .withUnretained(self)
+            .flatMap { owner, value -> Observable<Int> in
+                if value > -1 && value < 100 {
+                    return .just(value)
+                } else {
+                    owner.showAlert(title: "밥은 1 ~ 99까지만 먹일 수 있어요")
+                    return .empty()
+                }
+            }
+            .bind(with: self) { owner, value in
+                owner.foodValue.accept(value)
+            }
+            .disposed(by: disposeBag)
 
-        let viewDidLoadTrigger = Observable.just(())
+        foodValue
+            .bind(with: self) { owner, value in
+                owner.foodCount += value
+                print(owner.foodCount)
+            }
+            .disposed(by: disposeBag)
 
+        waterButton.rx.tap
+            .withLatestFrom(waterTextField.rx.text.orEmpty)
+            .map { $0.isEmpty ? "1" : $0 }
+            .compactMap { Int($0) }
+            .withUnretained(self)
+            .flatMap { owner, value -> Observable<Int> in
+                if value > -1 && value < 50 {
+                    return .just(value)
+                } else {
+                    owner.showAlert(title: "물은 1 ~ 49까지만 먹일 수 있어요")
+                    return .empty()
+                }
+            }
+            .asDriver(onErrorJustReturn: 0)
+            .drive(with: self) { owner, value in
+                owner.waterValue.accept(value)
+            }
+            .disposed(by: disposeBag)
 
-        let input = MainViewModel.Input(viewDidLoadTrigger: viewDidLoadTrigger,
-                                        feedTextField: foodTextField.rx.text.orEmpty,
-                                        waterTextField: waterTextField.rx.text.orEmpty,
-                                        feedButtonTapped: foodButton.rx.tap,
-                                        waterButtonTapped: waterButton.rx.tap)
-
-        let output = viewModel.transform(input: input)
-
-        output.feedCount
+        waterValue
             .asDriver()
             .drive(with: self) { owner, value in
-                print(value)
-            }
-            .disposed(by: disposeBag)
-
-        output.waterCount
-            .asDriver()
-            .drive(with: self) { owner, value in
-                print(value)
-            }
-            .disposed(by: disposeBag)
-
-        output.userData
-            .asDriver()
-            .drive(with: self) { owner, data in
-                print(data)
-            }
-            .disposed(by: disposeBag)
-
-        output.totalResult
-            .asDriver()
-            .drive(with: self) { owner, result in
-                print(result)
-            }
-            .disposed(by: disposeBag)
-
-        output.tamagochiMessage
-            .asDriver()
-            .drive(textLabel.rx.text)
-            .disposed(by: disposeBag)
-
-        output.feedErrorMessage
-            .asDriver()
-            .drive(with: self) { owner, value in
-                print(value)
-            }
-            .disposed(by: disposeBag)
-
-        output.waterErrorMessage
-            .asDriver()
-            .drive(with: self) { owner, value in
-                print(value)
+                owner.waterCount += value
             }
             .disposed(by: disposeBag)
     }
 
-    // TODO: ImageView 변경하는 로직 -> 다마고치 Type에 따라서 다른 이미지로 변경해야 함 (다마고치 타입별 모델이 필요함)
+//    // TODO: ImageView 변경하는 로직 -> 다마고치 Type에 따라서 다른 이미지로 변경해야 함 (다마고치 타입별 모델이 필요함)
     private func designMainImageView() {
         switch level {
         case 1: mainImageView.image = ._2_1
@@ -141,25 +157,25 @@ final class MainViewController: UIViewController {
         }
         mainImageView.contentMode = .scaleAspectFit
     }
-
+//
     private func designBulloonImageView() {
         bulloonImageView.image = .bubble
         bulloonImageView.contentMode = .scaleAspectFit
     }
 
 //    // TODO: ViewModel에 있는 Message로 변경하여 재반영 예정
-//    private func showBulloonMessage() {
-//        let messageDb = [
-//            #"\#(nickname)님,\#n복습 하셨나요?"#,
-//            #"\#(nickname)님,\#n깃허브 푸시하셨나요?"#,
-//            #"\#(nickname)님,\#n5시 칼퇴하실건가요?"#,
-//            #"\#(nickname)님,\#n배고파요 밥주세요"#,
-//            #"잘 챙겨주셔서 레벨업 했어요!\#n\#(nickname)님"#,
-//            "밥 먹으니까 졸려요"
-//        ]
-//
-//        messageLabel.text = messageDb.randomElement()
-//    }
+    private func showBulloonMessage() {
+        let messageDb = [
+            #"\#(nickname)님,\#n복습 하셨나요?"#,
+            #"\#(nickname)님,\#n깃허브 푸시하셨나요?"#,
+            #"\#(nickname)님,\#n5시 칼퇴하실건가요?"#,
+            #"\#(nickname)님,\#n배고파요 밥주세요"#,
+            #"잘 챙겨주셔서 레벨업 했어요!\#n\#(nickname)님"#,
+            "밥 먹으니까 졸려요"
+        ]
+
+        messageLabel.text = messageDb.randomElement()
+    }
 
 //    // TODO: ViewModel에 있는 UserData 가져와서 해당 닉네임으로 반영
 //    private func setupNavigationBar() {
@@ -239,19 +255,146 @@ final class MainViewController: UIViewController {
     }
 
     // TODO: ViewModel에서 넘겨준 데이터 사용하기
-//    private func loadData() {
-//        level = UserDefaults.standard.integer(forKey: "level")
-//        foodCount = UserDefaults.standard.integer(forKey: "foodCount")
-//        waterCount = UserDefaults.standard.integer(forKey: "waterCount")
-//    }
-//
-//    // TODO: ViewModel에 데이터 넘겨줘서 ViewModel에서 UserDefault에 저장해야하는데 로직 고민 필요
-//    private func saveData() {
-//        UserDefaults.standard.set(level, forKey: "level")
-//        UserDefaults.standard.set(foodCount, forKey: "foodCount")
-//        UserDefaults.standard.set(waterCount, forKey: "waterCount")
-//    }
+    private func loadData() {
+        nickname = UserDefaults.standard.string(forKey: "nickname") ?? "게스트"
+        level = UserDefaults.standard.integer(forKey: "level")
+        foodCount = UserDefaults.standard.integer(forKey: "food")
+        waterCount = UserDefaults.standard.integer(forKey: "water")
+    }
 
+    private func showAlert(title: String) {
+        let alert = UIAlertController(title: "안돼요", message: title, preferredStyle: .alert)
+        let action = UIAlertAction(title: "확인", style: .default)
+        alert.addAction(action)
+        present(alert, animated: true)
+    }
+
+    @IBAction func viewTapped(_ sender: UITapGestureRecognizer) {
+        view.endEditing(true)
+    }
+}
+
+extension MainViewController {
+    enum AssetImage {
+        case food
+        case water
+
+        var title: String {
+            switch self {
+            case .food: return "leaf.circle"
+            case .water: return "drop.circle"
+            }
+        }
+    }
+
+    enum ButtonTitle {
+        case food
+        case water
+
+        var title: String {
+            switch self {
+            case .food: return "밥먹기"
+            case .water: return "물먹기"
+            }
+        }
+    }
+}
+
+//        // 버튼눌렀을때
+//        foodButton.rx.tap
+//            .withLatestFrom(foodTextField.rx.text.orEmpty)
+//            .compactMap { Int($0) }
+//            .map { $0 > 0 && $0 < 100 }
+//            .asDriver(onErrorJustReturn: true)
+//            .drive(with: self) { owner, value in
+//                print("foodCondition", value)
+//            }
+//            .disposed(by: disposeBag)
+//
+//        let inputCheck = foodButton.rx.tap
+//            .withLatestFrom(foodTextField.rx.text.orEmpty)
+//            .compactMap { Int($0) }
+//            .map { $0 > -1 && $0 > 100 }
+//            .share()
+//
+//        let validInput = foodButton.rx.tap
+//            .withLatestFrom(foodTextField.rx.text.orEmpty)
+//            .compactMap { Int($0) }
+//            .filter { $0 > -1 && $0 < 100 }
+//            .share()
+//
+//        Observable.zip(inputCheck, validInput)
+//            .map { isValid, value in
+//                isValid ? value : -99
+//            }
+
+
+//        foodButton.rx.tap
+//            .withLatestFrom(foodTextField.rx.text.orEmpty)
+//            .compactMap { $0.count == 0 ? 1 : Int($0) }
+//            .asDriver(onErrorJustReturn: 0)
+//            .drive(with: self) { owner, value in
+//                owner.foodValue.accept(value)
+//            }
+//            .disposed(by: disposeBag)
+
+
+//        // TODO: 순서
+//        // 1. 입력된 값이 유효한지 검사
+//        foodButton.rx.tap
+//            .withLatestFrom(foodTextField.rx.text.orEmpty)
+//            .map { value in
+//                let intValue = Int(value) ?? 0
+//                return intValue
+//            }
+//            .map { $0 > 0 && $0 < 50 }
+//            .map { $0 ? "" : "입력값이 잘못되었어요!(1 ~ 100 사이만 가능)" }
+//            .asDriver(onErrorJustReturn: "")
+//            .drive(with: self) { owner, value in
+//                owner.foodError.accept(value)
+//            }
+//            .disposed(by: disposeBag)
+//
+//
+//        Observable.zip(foodTextField.rx.text.orEmpty, foodError)
+//            .map { value, error in
+//                if error.count == 0 {
+//
+//                }
+//            }
+
+        // 2. 유효하면 데이터에 반영하는 로직
+        // 유효성 검사가 다 끝나고 유효하면 실행하려면 concat을 써야하나?
+
+
+        // 지금 이 상태에서 filter를 써서 100 이상의 값을 걸러주고 싶은데, 연산이 길어져서 compile 에러가 남
+        // 여기서 전체 로직을 다 처리할게 아니고 값이 유효한지만 판단하게 한 뒤에
+        // foodButton에서 나오는 값을 onNext한다음에
+        // 해당 값을 관찰하는 Observer가 핸들링하는게 더 좋을거 같음
+//        foodButton.rx.tap
+//            .withLatestFrom(foodTextField.rx.text.orEmpty)
+//            .compactMap { $0.count == 0 ? 1 : Int($0) }
+//            .asDriver(onErrorJustReturn: 0)
+//            .drive(with: self) { owner, value in
+//                print("value", value)
+//                owner.foodCount += value
+//                let data = UserDefaults.standard.integer(forKey: "food")
+//                print("userDefault Value", data)
+//            }
+//            .disposed(by: disposeBag)
+//
+//        waterButton.rx.tap
+//            .withLatestFrom(waterTextField.rx.text.orEmpty)
+//            .compactMap { $0.count == 0 ? 1 : Int($0) }
+//            .asDriver(onErrorJustReturn: 0)
+//            .drive(with: self) { owner, value in
+//                print("value", value)
+//                owner.waterCount += value
+//                let data = UserDefaults.standard.integer(forKey: "water")
+//                print("userDefault Value", data)
+//            }
+//            .disposed(by: disposeBag)
+//
 
 //    // TODO: ViewModel에서 받아온 데이터를 토대로 반영
 //    private func updateUI() {
@@ -324,41 +467,61 @@ final class MainViewController: UIViewController {
 //        }
 //    }
 
-    private func showAlert(title: String) {
-        let alert = UIAlertController(title: "에러", message: title, preferredStyle: .alert)
-        let action = UIAlertAction(title: "확인", style: .default)
-        alert.addAction(action)
-        present(alert, animated: true)
-    }
-
-    @IBAction func viewTapped(_ sender: UITapGestureRecognizer) {
-        view.endEditing(true)
-    }
-}
-
-extension MainViewController {
-    enum AssetImage {
-        case food
-        case water
-
-        var title: String {
-            switch self {
-            case .food: return "leaf.circle"
-            case .water: return "drop.circle"
-            }
-        }
-    }
-
-    enum ButtonTitle {
-        case food
-        case water
-
-        var title: String {
-            switch self {
-            case .food: return "밥먹기"
-            case .water: return "물먹기"
-            }
-        }
-    }
-}
-
+//    private func bind() {
+//
+//        let viewDidLoadTrigger = Observable.just(())
+//
+//
+//        let input = MainViewModel.Input(viewDidLoadTrigger: viewDidLoadTrigger,
+//                                        feedTextField: foodTextField.rx.text.orEmpty,
+//                                        waterTextField: waterTextField.rx.text.orEmpty,
+//                                        feedButtonTapped: foodButton.rx.tap,
+//                                        waterButtonTapped: waterButton.rx.tap)
+//
+//        let output = viewModel.transform(input: input)
+//
+//        output.feedCount
+//            .asDriver()
+//            .drive(with: self) { owner, value in
+//                print("feedCount", value)
+//            }
+//            .disposed(by: disposeBag)
+//
+//        output.waterCount
+//            .asDriver()
+//            .drive(with: self) { owner, value in
+//                print("waterCount", value)
+//            }
+//            .disposed(by: disposeBag)
+//
+//        output.userData
+//            .asDriver()
+//            .drive(with: self) { owner, data in
+//                print("userData", data)
+//            }
+//            .disposed(by: disposeBag)
+//
+//        output.totalResult
+//            .asDriver()
+//            .drive(textLabel.rx.text)
+//            .disposed(by: disposeBag)
+//
+////        output.tamagochiMessage
+////            .asDriver()
+////            .drive(textLabel.rx.text)
+////            .disposed(by: disposeBag)
+//
+//        output.feedErrorMessage
+//            .asDriver()
+//            .drive(with: self) { owner, value in
+//                print(value)
+//            }
+//            .disposed(by: disposeBag)
+//
+//        output.waterErrorMessage
+//            .asDriver()
+//            .drive(with: self) { owner, value in
+//                print(value)
+//            }
+//            .disposed(by: disposeBag)
+//    }
