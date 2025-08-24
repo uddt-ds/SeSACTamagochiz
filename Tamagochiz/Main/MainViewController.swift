@@ -82,13 +82,16 @@ final class MainViewController: UIViewController {
         setupButtons()
         designTextFieldUI()
         designProfileButton()
+        loadData()
         bind()
-
-//        loadData()
 //        updateState()
     }
 
     private func bind() {
+
+        let totalFoodCountRelay = BehaviorRelay(value: self.foodCount)
+        let totalWaterCountRelay = BehaviorRelay(value: self.waterCount)
+
         foodButton.rx.tap
             .withLatestFrom(foodTextField.rx.text.orEmpty)
             .map { $0.isEmpty ? "1" : $0 }
@@ -110,7 +113,7 @@ final class MainViewController: UIViewController {
         foodValue
             .bind(with: self) { owner, value in
                 owner.foodCount += value
-                print("foodCount: ", owner.foodCount)
+                totalFoodCountRelay.accept(owner.foodCount)
             }
             .disposed(by: disposeBag)
 
@@ -137,11 +140,11 @@ final class MainViewController: UIViewController {
             .asDriver()
             .drive(with: self) { owner, value in
                 owner.waterCount += value
-                print("waterCount: ", owner.waterCount)
+                totalWaterCountRelay.accept(owner.waterCount)
             }
             .disposed(by: disposeBag)
 
-        Observable.combineLatest(foodValue.asObservable(), waterValue.asObservable())
+        Observable.combineLatest(totalFoodCountRelay.asObservable(), totalWaterCountRelay.asObservable())
             .withUnretained(self)
             .map { owner, result in
                 let calculate = ((Double(result.0) / 5.0) + (Double(result.1) / 2.0)) * 0.1
@@ -160,6 +163,15 @@ final class MainViewController: UIViewController {
                 owner.level = value
                 print("levelCount: ", owner.level)
             }
+            .disposed(by: disposeBag)
+
+        Observable.combineLatest(totalFoodCountRelay.asObservable(), totalWaterCountRelay.asObservable(), levelValue.asObservable())
+            .withUnretained(self)
+            .map { owner, result in
+                "LV\(result.2) • 밥알 \(result.0)개 • 물방울 \(result.1)개"
+            }
+            .asDriver(onErrorJustReturn: "")
+            .drive(textLabel.rx.text)
             .disposed(by: disposeBag)
     }
 
