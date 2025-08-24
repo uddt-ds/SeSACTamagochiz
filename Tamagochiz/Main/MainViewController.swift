@@ -115,7 +115,7 @@ final class MainViewController: UIViewController {
     }
 
     private func setupNavigationBar() {
-        let nickname = UserDefaults.standard.string(forKey: "nickname") ?? ""
+        let nickname = UserDefaults.standard.string(forKey: UserDefaultsKey.nickname.rawValue) ?? ""
         self.navigationItem.title = "\(nickname)님의 다마고치"
     }
 
@@ -267,7 +267,7 @@ extension MainViewController {
 //            .disposed(by: disposeBag)
 
 
-//        // TODO: 순서
+
 //        // 1. 입력된 값이 유효한지 검사
 //        foodButton.rx.tap
 //            .withLatestFrom(foodTextField.rx.text.orEmpty)

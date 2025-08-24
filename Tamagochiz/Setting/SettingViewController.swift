@@ -51,8 +51,7 @@ final class SettingViewController: UIViewController {
         output.tableViewData
             .bind(to: tableView.rx.items) { (tableView, row, element) in
                 guard let cell = tableView.dequeueReusableCell(withIdentifier: SettingViewCell.identifier) as? SettingViewCell else { return .init() }
-
-                //TODO: 이 판단 로직 VM으로 옮기기
+                //TODO: label을 가리는 판단 로직 ViewModel로 가야하는지 고민 필요
                 if row == 0 {
                     cell.configureCell(with: element, isHidden: false)
                 } else {
@@ -62,8 +61,6 @@ final class SettingViewController: UIViewController {
             }
             .disposed(by: disposeBag)
 
-
-        // Merge는 타입이 불일치해서 불가능
         Observable.zip(tableView.rx.modelSelected(TableViewDataModel.self), tableView.rx.itemSelected)
             .bind(with: self) { owner, result in
                 switch result.1.row {
@@ -72,12 +69,11 @@ final class SettingViewController: UIViewController {
                     let vc = NameChangeViewController(viewModel: viewModel)
                     owner.navigationItem.backButtonTitle = ""
                     owner.navigationController?.pushViewController(vc, animated: true)
-                case 1: // TODO: 다마고치 변경화면
+                case 1:
                     let vc = TamagochiViewController()
                     owner.navigationItem.backButtonTitle = ""
                     owner.navigationController?.pushViewController(vc, animated: true)
-                case 2: // TODO: 알럿 띄우고 확인 누르면 UserDefault 데이터 다 0으로 만들고 다마고치 선택화면 push
-                    print("데이터 초기화 tapped")
+                case 2:
                     let alert = UIAlertController(title: "데이터 초기화", message: "정말 다시 처음부터 시작하실건가용?", preferredStyle: .alert)
                     let noAction = UIAlertAction(title: "아냐!", style: .default)
                     //TODO: 여기는 Rx에 맞게 확장하면 좋은 구조가 될거 같음
@@ -96,39 +92,13 @@ final class SettingViewController: UIViewController {
             .disposed(by: disposeBag)
     }
 
+    //TODO: 데이터 초기화하는 로직, 분기하는 로직과 병행해서 체크 필요
     private func reset() {
-        UserDefaults.standard.set("", forKey: "nickname")
-        UserDefaults.standard.set("", forKey: "tamagochiName")
-        UserDefaults.standard.set(0, forKey: "tamagochi")
-        UserDefaults.standard.set(0, forKey: "level")
-        UserDefaults.standard.set(0, forKey: "food")
-        UserDefaults.standard.set(0, forKey: "water")
+        UserDefaults.standard.set("대장", forKey: UserDefaultsKey.nickname.rawValue)
+        UserDefaults.standard.set("", forKey: UserDefaultsKey.tamagochiName.rawValue)
+        UserDefaults.standard.set(0, forKey: UserDefaultsKey.tamagochi.rawValue)
+        UserDefaults.standard.set(0, forKey: UserDefaultsKey.level.rawValue)
+        UserDefaults.standard.set(0, forKey: UserDefaultsKey.food.rawValue)
+        UserDefaults.standard.set(0, forKey: UserDefaultsKey.water.rawValue)
     }
-//        tableView.rx.modelSelected(TableViewDataModel.self)
-//            .bind(with: self) { owner, data in
-//                let viewModel = NameChangeViewModel(currentNickname: data.nickname)
-//                let vc = NameChangeViewController(viewModel: viewModel)
-//                owner.navigationController?.pushViewController(vc, animated: true)
-//            }
-//            .disposed(by: disposeBag)
-//
-//        tableView.rx.itemSelected
-//            .bind(with: self) { owner, indexPath in
-//                switch indexPath.row {
-//                case 0:
-//                    let viewModel = NameChangeViewModel(currentNickname: "ㅇㅇ")
-//                    let vc = NameChangeViewController(viewModel: viewModel)
-//                    owner.navigationController?.pushViewController(vc, animated: true)
-//                case 1: // TODO: 다마고치 변경 화면
-//                    let vc = ViewController()
-//                    owner.navigationController?.pushViewController(vc, animated: true)
-//                case 2:    // TODO: UserDefault 다 0으로 만들고, 닉네임 설정화면으로 Push
-//                    let vc = ViewController()
-//                    owner.navigationController?.pushViewController(vc, animated: true)
-//                default:
-//                    return
-//                }
-//            }
-//            .disposed(by: disposeBag)
-//    }
 }

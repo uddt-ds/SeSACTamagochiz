@@ -14,14 +14,13 @@ final class TamagochiViewController: UIViewController {
 
     var disposeBag = DisposeBag()
 
-
-    var tamagochiModel: TamagochiModel = .init(tamaCategory: .tama1, name: "", image: ""){
-        didSet {
-            if let decodedData = try? JSONEncoder().encode(tamagochiModel) {
-                UserDefaults.standard.set(decodedData, forKey: "tamagochiModel")
-            }
-        }
-    }
+//    var tamagochiModel: TamagochiModel = .init(tamaCategory: .tama1, name: "", image: ""){
+//        didSet {
+//            if let decodedData = try? JSONEncoder().encode(tamagochiModel) {
+//                UserDefaults.standard.set(decodedData, forKey: "tamagochiModel")
+//            }
+//        }
+//    }
 
 
     let viewModel = TamagochiViewModel()
@@ -113,12 +112,11 @@ final class TamagochiViewController: UIViewController {
 
         collectionView.rx.modelSelected(TamagochiModel.self)
             .bind(with: self) { owner, model in
-                owner.tamagochiModel = model
-                UserDefaults.standard.set(model.name, forKey: "tamagochiName")
-                UserDefaults.standard.set(model.tamaCategory.rawValue, forKey: "tamagochi")
-                print(model)
+//                owner.tamagochiModel = model
+                UserDefaults.standard.set(model.name, forKey: UserDefaultsKey.tamagochiName.rawValue)
+                UserDefaults.standard.set(model.tamaCategory.rawValue, forKey: UserDefaultsKey.tamagochi.rawValue)
                 let vc = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(identifier: "MainViewController")
-                owner.navigationController?.pushViewController(vc, animated: true)
+                owner.navigationController?.setViewControllers([vc], animated: true)
             }
             .disposed(by: disposeBag)
     }

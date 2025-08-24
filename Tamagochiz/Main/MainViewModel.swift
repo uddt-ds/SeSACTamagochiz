@@ -14,15 +14,15 @@ final class MainViewModel: RxViewModelProtocol {
     var disposeBag = DisposeBag()
 
     var tamagochi: TamaCategory = .tama1 {
-        // TODO: 첫번째 선택화면으로 옮기고, 여기서는 로드된 데이터 사용하기
+        // TODO: 첫번째 선택화면으로 옮기고, 여기서는 로드된 데이터 사용하는게 좋을거 같은데..
         didSet {
-            UserDefaults.standard.set(tamagochi.rawValue, forKey: "tamagochi")
+            UserDefaults.standard.set(tamagochi.rawValue, forKey: UserDefaultsKey.tamagochi.rawValue)
         }
     }
 
     var tamagochiName: String = "" {
         didSet {
-            UserDefaults.standard.set(tamagochiName, forKey: "tamagochiName")
+            UserDefaults.standard.set(tamagochiName, forKey: UserDefaultsKey.tamagochiName.rawValue)
         }
     }
 
@@ -30,23 +30,23 @@ final class MainViewModel: RxViewModelProtocol {
 
     var nickname: String = "대장" {
         didSet {
-            UserDefaults.standard.set(nickname, forKey: "nickname")
+            UserDefaults.standard.set(nickname, forKey: UserDefaultsKey.nickname.rawValue)
         }
     }
     var level: Int = 0 {
         didSet {
-            UserDefaults.standard.set(level, forKey: "level")
+            UserDefaults.standard.set(level, forKey: UserDefaultsKey.level.rawValue)
         }
     }
     var food: Int = 0 {
         didSet {
-            UserDefaults.standard.set(food, forKey: "food")
+            UserDefaults.standard.set(food, forKey: UserDefaultsKey.food.rawValue)
         }
     }
 
     var water: Int = 0 {
         didSet {
-            UserDefaults.standard.set(water, forKey: "water")
+            UserDefaults.standard.set(water, forKey: UserDefaultsKey.water.rawValue)
         }
     }
 
@@ -60,6 +60,7 @@ final class MainViewModel: RxViewModelProtocol {
 //                tamagochiModel = decodedData
 //            }
 //        }
+
         messageDb = [#"\#(nickname)님,\#n복습 하셨나요?"#,
         #"\#(nickname)님,\#n깃허브 푸시하셨나요?"#,
         #"\#(nickname)님,\#n5시 칼퇴하실건가요?"#,
@@ -229,14 +230,13 @@ final class MainViewModel: RxViewModelProtocol {
     }
 
     func loadData() {
-        let rawValue = UserDefaults.standard.integer(forKey: "tamagochi")
-        print(rawValue)
+        let rawValue = UserDefaults.standard.integer(forKey: UserDefaultsKey.tamagochi.rawValue)
         tamagochi = TamaCategory(rawValue: rawValue) ?? .tama1
-        tamagochiName = UserDefaults.standard.string(forKey: "tamagochiName") ?? ""
-        nickname = UserDefaults.standard.string(forKey: "nickname") ?? "게스트"
-        level = UserDefaults.standard.integer(forKey: "level")
-        food = UserDefaults.standard.integer(forKey: "food")
-        water = UserDefaults.standard.integer(forKey: "water")
+        tamagochiName = UserDefaults.standard.string(forKey: UserDefaultsKey.tamagochiName.rawValue) ?? ""
+        nickname = UserDefaults.standard.string(forKey: UserDefaultsKey.nickname.rawValue) ?? "게스트"
+        level = UserDefaults.standard.integer(forKey:UserDefaultsKey.level.rawValue)
+        food = UserDefaults.standard.integer(forKey: UserDefaultsKey.food.rawValue)
+        water = UserDefaults.standard.integer(forKey: UserDefaultsKey.water.rawValue)
 
         tamaValue.accept(tamagochi.rawValue)
     }

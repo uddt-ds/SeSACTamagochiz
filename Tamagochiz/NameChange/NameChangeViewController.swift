@@ -101,9 +101,10 @@ final class NameChangeViewController: UIViewController {
 //
         output.validateResult
             .bind(with: self) { owner, value in
-                UserDefaults.standard.set(value, forKey: "nickname")
+                UserDefaults.standard.set(value, forKey: UserDefaultsKey.nickname.rawValue)
                 let vc = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "MainViewController")
-                owner.navigationController?.pushViewController(vc, animated: true)
+                owner.navigationItem.backButtonTitle = ""
+                owner.navigationController?.setViewControllers([vc], animated: true)
             }
             .disposed(by: disposeBag)
     }

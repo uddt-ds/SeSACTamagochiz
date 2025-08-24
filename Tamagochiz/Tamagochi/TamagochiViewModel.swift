@@ -19,7 +19,7 @@ final class TamagochiViewModel: RxViewModelProtocol {
 
     var tamagochi: TamaCategory = .tama1 {
         didSet {
-            UserDefaults.standard.set(tamagochi.rawValue, forKey: "tamagochi")
+            UserDefaults.standard.set(tamagochi.rawValue, forKey: UserDefaultsKey.tamagochi.rawValue)
         }
     }
 
