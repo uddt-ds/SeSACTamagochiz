@@ -65,6 +65,7 @@ final class MainViewController: UIViewController {
     let foodError = BehaviorRelay(value: "")
     let waterValue = BehaviorRelay(value: 0)
     let waterError = BehaviorRelay(value: "")
+    let levelValue = BehaviorRelay(value: 0)
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -109,7 +110,7 @@ final class MainViewController: UIViewController {
         foodValue
             .bind(with: self) { owner, value in
                 owner.foodCount += value
-                print(owner.foodCount)
+                print("foodCount: ", owner.foodCount)
             }
             .disposed(by: disposeBag)
 
@@ -136,6 +137,28 @@ final class MainViewController: UIViewController {
             .asDriver()
             .drive(with: self) { owner, value in
                 owner.waterCount += value
+                print("waterCount: ", owner.waterCount)
+            }
+            .disposed(by: disposeBag)
+
+        Observable.combineLatest(foodValue.asObservable(), waterValue.asObservable())
+            .withUnretained(self)
+            .map { owner, result in
+                let calculate = ((Double(result.0) / 5.0) + (Double(result.1) / 2.0)) * 0.1
+                let calculateResult = Int(calculate)
+                print(calculateResult)
+                return calculateResult
+            }
+            .bind(with: self) { owner, value in
+                owner.levelValue.accept(value)
+            }
+            .disposed(by: disposeBag)
+
+        levelValue
+            .asDriver()
+            .drive(with: self) { owner, value in
+                owner.level = value
+                print("levelCount: ", owner.level)
             }
             .disposed(by: disposeBag)
     }
