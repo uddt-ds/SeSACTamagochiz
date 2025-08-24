@@ -20,6 +20,14 @@ final class MainViewModel: RxViewModelProtocol {
         }
     }
 
+    var tamagochiName: String = "" {
+        didSet {
+            UserDefaults.standard.set(tamagochiName, forKey: "tamagochiName")
+        }
+    }
+
+    var tamagochiModel: TamagochiModel = .init(tamaCategory: .tama1, name: "", image: "")
+
     var nickname: String = "대장" {
         didSet {
             UserDefaults.standard.set(nickname, forKey: "nickname")
@@ -47,6 +55,11 @@ final class MainViewModel: RxViewModelProtocol {
     init() {
         loadData()
 
+//        if let data = UserDefaults.standard.data(forKey: "tamagochiModel") {
+//            if let decodedData = try? JSONDecoder().decode(TamagochiModel.self, from: data) {
+//                tamagochiModel = decodedData
+//            }
+//        }
         messageDb = [#"\#(nickname)님,\#n복습 하셨나요?"#,
         #"\#(nickname)님,\#n깃허브 푸시하셨나요?"#,
         #"\#(nickname)님,\#n5시 칼퇴하실건가요?"#,
@@ -59,6 +72,7 @@ final class MainViewModel: RxViewModelProtocol {
     let waterValue = BehaviorRelay(value: 0)
     let levelValue = BehaviorRelay(value: 0)
     let tamaValue = BehaviorRelay(value: 0)
+    let tamaName = BehaviorRelay(value: "")
 
     struct Input {
         let viewDidLoadTrigger: Observable<Void>
@@ -74,9 +88,10 @@ final class MainViewModel: RxViewModelProtocol {
         let waterCount: BehaviorRelay<Int>
         let levelCount: BehaviorRelay<Int>
         let tamagochiRawValue: BehaviorRelay<Int>
+        let tamagochiName: BehaviorRelay<String>
         let tamagochiMessage: BehaviorRelay<String>
-        let foodErrorMessage: BehaviorRelay<String>
-        let waterErrorMessage: BehaviorRelay<String>
+        let foodErrorMessage: PublishRelay<String>
+        let waterErrorMessage: PublishRelay<String>
         let totalResultLabel: BehaviorRelay<String>
     }
 
@@ -86,9 +101,10 @@ final class MainViewModel: RxViewModelProtocol {
         let waterCount = BehaviorRelay(value: 0)
         let levelCount = BehaviorRelay(value: 0)
         let tamagochiRawValue = BehaviorRelay(value: 0)
+        let tamagochiName = BehaviorRelay(value: "")
         let tamagochiMessage = BehaviorRelay(value: "")
-        let foodErrorMessage = BehaviorRelay(value: "")
-        let waterErrorMessage = BehaviorRelay(value: "")
+        let foodErrorMessage = PublishRelay<String>()
+        let waterErrorMessage = PublishRelay<String>()
         let totalReulstLabel = BehaviorRelay(value: "")
 
         input.viewDidLoadTrigger
@@ -98,6 +114,7 @@ final class MainViewModel: RxViewModelProtocol {
                 waterCount.accept(owner.water)
                 levelCount.accept(owner.level)
                 tamagochiRawValue.accept(owner.tamagochi.rawValue)
+                tamagochiName.accept(owner.tamagochiName)
                 tamagochiMessage.accept(owner.messageDb.randomElement() ?? "")
             }
             .disposed(by: disposeBag)
@@ -208,14 +225,15 @@ final class MainViewModel: RxViewModelProtocol {
             }
             .disposed(by: disposeBag)
 
-
-        return Output(foodCount: foodCount, waterCount: waterCount, levelCount: levelCount, tamagochiRawValue: tamagochiRawValue, tamagochiMessage: tamagochiMessage, foodErrorMessage: foodErrorMessage, waterErrorMessage: waterErrorMessage, totalResultLabel: totalReulstLabel)
+        return Output(foodCount: foodCount, waterCount: waterCount, levelCount: levelCount, tamagochiRawValue: tamagochiRawValue, tamagochiName: tamagochiName, tamagochiMessage: tamagochiMessage, foodErrorMessage: foodErrorMessage, waterErrorMessage: waterErrorMessage, totalResultLabel: totalReulstLabel)
     }
 
     func loadData() {
         let rawValue = UserDefaults.standard.integer(forKey: "tamagochi")
+        print(rawValue)
         tamagochi = TamaCategory(rawValue: rawValue) ?? .tama1
-        nickname = UserDefaults.standard.string(forKey: "nickname") ?? "기본값"
+        tamagochiName = UserDefaults.standard.string(forKey: "tamagochiName") ?? ""
+        nickname = UserDefaults.standard.string(forKey: "nickname") ?? "게스트"
         level = UserDefaults.standard.integer(forKey: "level")
         food = UserDefaults.standard.integer(forKey: "food")
         water = UserDefaults.standard.integer(forKey: "water")

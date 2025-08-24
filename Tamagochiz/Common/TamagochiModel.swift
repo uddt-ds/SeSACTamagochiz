@@ -7,7 +7,8 @@
 
 import Foundation
 
-struct TamagochiModel {
+struct TamagochiModel: Codable {
+    let tamaCategory: TamaCategory
     let name: String
     let image: String
 }

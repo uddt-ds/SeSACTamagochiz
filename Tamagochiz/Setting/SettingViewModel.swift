@@ -11,7 +11,7 @@ import RxCocoa
 
 final class SettingViewModel: RxViewModelProtocol {
 
-    private var disposeBag = DisposeBag()
+    var disposeBag = DisposeBag()
 
     private let tableViewTitleData = SettingTableViewTitle.allCases
     private let tableViewImageData = SettingTableViewImage.allCases
@@ -37,7 +37,7 @@ final class SettingViewModel: RxViewModelProtocol {
                 let data = owner.tableViewTitleData.map { $0.rawValue }
 
                 for i in 0..<data.count {
-                    let nickname = UserDefaultsStore.userData.nickname
+                    let nickname = UserDefaults.standard.string(forKey: "nickname") ?? "게스트"
                     let tableViewData = TableViewDataModel(nickname: nickname, image: imageData[i], title: data[i])
                     dataArr.append(tableViewData)
                 }

@@ -11,9 +11,9 @@ import RxCocoa
 
 final class MainViewController: UIViewController {
 
-    let viewModel = MainViewModel()
-
     var disposeBag = DisposeBag()
+
+    let viewModel = MainViewModel()
 
     @IBOutlet var bulloonImageView: UIImageView!
     @IBOutlet var messageLabel: UILabel!
@@ -33,14 +33,6 @@ final class MainViewController: UIViewController {
     @IBOutlet var waterButton: UIButton!
 
     @IBOutlet var profileButton: UIButton!
-
-    //프로퍼티에 didSet을 달아두면 알아서 userDefaults에 저장이 됨
-    //해야하는 동작
-    //1. VC에서 밥 버튼을 누르면 1을 더하고 UserDefault에 저장
-    //2. VC에서 물 버튼을 누르면 1을 더하고 UserDefault에 저장
-    //3.
-
-
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -71,14 +63,14 @@ final class MainViewController: UIViewController {
         let output = viewModel.transform(input: input)
 
         output.foodErrorMessage
-            .asDriver()
+            .asDriver(onErrorJustReturn: "")
             .drive(with: self) { owner, value in
                 owner.showAlert(title: value)
             }
             .disposed(by: disposeBag)
 
         output.waterErrorMessage
-            .asDriver()
+            .asDriver(onErrorJustReturn: "")
             .drive(with: self) { owner, value in
                 owner.showAlert(title: value)
             }
@@ -102,45 +94,25 @@ final class MainViewController: UIViewController {
             .drive(mainImageView.rx.image)
             .disposed(by: disposeBag)
 
+        output.tamagochiName
+            .asDriver()
+            .drive(monsterNameLabel.rx.text)
+            .disposed(by: disposeBag)
+
+        profileButton.rx.tap
+            .bind(with: self) { owner, _ in
+                let vc = SettingViewController()
+                owner.navigationItem.backButtonTitle = ""
+                owner.navigationController?.pushViewController(vc, animated: true)
+            }
+            .disposed(by: disposeBag)
+
     }
 
-
-//    // TODO: ImageView 변경하는 로직 -> 다마고치 Type에 따라서 다른 이미지로 변경해야 함 (다마고치 타입별 모델이 필요함)
-//    private func designMainImageView() {
-//        switch level {
-//        case 1: mainImageView.image = ._2_1
-//        case 2: mainImageView.image = ._2_2
-//        case 3: mainImageView.image = ._2_3
-//        case 4: mainImageView.image = ._2_4
-//        case 5: mainImageView.image = ._2_5
-//        case 6: mainImageView.image = ._2_6
-//        case 7: mainImageView.image = ._2_7
-//        case 8: mainImageView.image = ._2_8
-//        case 9: mainImageView.image = ._2_9
-//        case 10: mainImageView.image = ._2_9
-//        default: mainImageView.image = ._3_1
-//        }
-//        mainImageView.contentMode = .scaleAspectFit
-//    }
-////
     private func designBulloonImageView() {
         bulloonImageView.image = .bubble
         bulloonImageView.contentMode = .scaleAspectFit
     }
-
-//    // TODO: ViewModel에 있는 Message로 변경하여 재반영 예정
-//    private func showBulloonMessage() {
-//        let messageDb = [
-//            #"\#(nickname)님,\#n복습 하셨나요?"#,
-//            #"\#(nickname)님,\#n깃허브 푸시하셨나요?"#,
-//            #"\#(nickname)님,\#n5시 칼퇴하실건가요?"#,
-//            #"\#(nickname)님,\#n배고파요 밥주세요"#,
-//            #"잘 챙겨주셔서 레벨업 했어요!\#n\#(nickname)님"#,
-//            "밥 먹으니까 졸려요"
-//        ]
-
-//        messageLabel.text = messageDb.randomElement()
-//    }
 
     private func setupNavigationBar() {
         let nickname = UserDefaults.standard.string(forKey: "nickname") ?? ""
@@ -170,7 +142,6 @@ final class MainViewController: UIViewController {
         monsterLabelBgView.layer.borderColor = UIColor.black.cgColor
     }
 
-    // TODO: 다마고치 모델이 필요할 거 같음. 이름, 레벨별 이미지가 저장되어 있는 모델
     private func designMonsterLabel() {
         monsterNameLabel.text = ""
         monsterNameLabel.textColor = .black
@@ -217,14 +188,6 @@ final class MainViewController: UIViewController {
             $0?.keyboardType = .numberPad
         }
     }
-
-    // TODO: ViewModel에서 넘겨준 데이터 사용하기
-//    private func loadData() {
-//        nickname = UserDefaults.standard.string(forKey: "nickname") ?? "게스트"
-//        level = UserDefaults.standard.integer(forKey: "level")
-//        foodCount = UserDefaults.standard.integer(forKey: "food")
-//        waterCount = UserDefaults.standard.integer(forKey: "water")
-//    }
 
     private func showAlert(title: String) {
         let alert = UIAlertController(title: "안돼요", message: title, preferredStyle: .alert)

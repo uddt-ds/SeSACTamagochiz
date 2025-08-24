@@ -14,6 +14,16 @@ final class TamagochiViewController: UIViewController {
 
     var disposeBag = DisposeBag()
 
+
+    var tamagochiModel: TamagochiModel = .init(tamaCategory: .tama1, name: "", image: ""){
+        didSet {
+            if let decodedData = try? JSONEncoder().encode(tamagochiModel) {
+                UserDefaults.standard.set(decodedData, forKey: "tamagochiModel")
+            }
+        }
+    }
+
+
     let viewModel = TamagochiViewModel()
 
     private lazy var collectionView: UICollectionView = {
@@ -28,6 +38,7 @@ final class TamagochiViewController: UIViewController {
         configureLayout()
         configureView()
         bind()
+        setupNavigation()
     }
 
     private func makeCollectionViewLayout() -> UICollectionViewFlowLayout {
@@ -79,6 +90,11 @@ final class TamagochiViewController: UIViewController {
         view.backgroundColor = .white
     }
 
+    private func setupNavigation() {
+        navigationItem.title = "다마고치 선택하기"
+        navigationItem.backButtonTitle = ""
+    }
+
     private func bind() {
         let viewDidLoadtrigger = PublishRelay<Void>()
 
@@ -92,6 +108,17 @@ final class TamagochiViewController: UIViewController {
                 guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: TamagochiCell.identifier, for: indexPath) as? TamagochiCell else { return .init() }
                 cell.configureCell(with: element)
                 return cell
+            }
+            .disposed(by: disposeBag)
+
+        collectionView.rx.modelSelected(TamagochiModel.self)
+            .bind(with: self) { owner, model in
+                owner.tamagochiModel = model
+                UserDefaults.standard.set(model.name, forKey: "tamagochiName")
+                UserDefaults.standard.set(model.tamaCategory.rawValue, forKey: "tamagochi")
+                print(model)
+                let vc = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(identifier: "MainViewController")
+                owner.navigationController?.pushViewController(vc, animated: true)
             }
             .disposed(by: disposeBag)
     }

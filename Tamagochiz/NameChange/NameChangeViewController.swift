@@ -82,7 +82,7 @@ final class NameChangeViewController: UIViewController {
     }
 
     private func configureView() {
-        view.backgroundColor = .lightGray
+        view.backgroundColor = .white
     }
 
     private func bind() {
@@ -98,11 +98,12 @@ final class NameChangeViewController: UIViewController {
                 }
             }
             .disposed(by: disposeBag)
-
+//
         output.validateResult
             .bind(with: self) { owner, value in
-                UserDefaultsStore.userData.nickname = value
-                print(UserDefaultsStore.userData)
+                UserDefaults.standard.set(value, forKey: "nickname")
+                let vc = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "MainViewController")
+                owner.navigationController?.pushViewController(vc, animated: true)
             }
             .disposed(by: disposeBag)
     }
