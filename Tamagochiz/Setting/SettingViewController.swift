@@ -70,17 +70,40 @@ final class SettingViewController: UIViewController {
                 case 0:
                     let viewModel = NameChangeViewModel(currentNickname: result.0.nickname)
                     let vc = NameChangeViewController(viewModel: viewModel)
+                    owner.navigationItem.backButtonTitle = ""
                     owner.navigationController?.pushViewController(vc, animated: true)
                 case 1: // TODO: 다마고치 변경화면
-                    print("다마고치 화면 tapped")
+                    let vc = TamagochiViewController()
+                    owner.navigationItem.backButtonTitle = ""
+                    owner.navigationController?.pushViewController(vc, animated: true)
                 case 2: // TODO: 알럿 띄우고 확인 누르면 UserDefault 데이터 다 0으로 만들고 다마고치 선택화면 push
                     print("데이터 초기화 tapped")
+                    let alert = UIAlertController(title: "데이터 초기화", message: "정말 다시 처음부터 시작하실건가용?", preferredStyle: .alert)
+                    let noAction = UIAlertAction(title: "아냐!", style: .default)
+                    //TODO: 여기는 Rx에 맞게 확장하면 좋은 구조가 될거 같음
+                    let okAction = UIAlertAction(title: "웅", style: .default) { _ in
+                        owner.reset()
+                        let vc = TamagochiViewController()
+                        owner.navigationController?.setViewControllers([vc], animated: true)
+                    }
+                    alert.addAction(noAction)
+                    alert.addAction(okAction)
+                    owner.present(alert, animated: true)
                 default:
                     return
                 }
             }
             .disposed(by: disposeBag)
+    }
 
+    private func reset() {
+        UserDefaults.standard.set("", forKey: "nickname")
+        UserDefaults.standard.set("", forKey: "tamagochiName")
+        UserDefaults.standard.set(0, forKey: "tamagochi")
+        UserDefaults.standard.set(0, forKey: "level")
+        UserDefaults.standard.set(0, forKey: "food")
+        UserDefaults.standard.set(0, forKey: "water")
+    }
 //        tableView.rx.modelSelected(TableViewDataModel.self)
 //            .bind(with: self) { owner, data in
 //                let viewModel = NameChangeViewModel(currentNickname: data.nickname)
@@ -107,5 +130,5 @@ final class SettingViewController: UIViewController {
 //                }
 //            }
 //            .disposed(by: disposeBag)
-    }
+//    }
 }
