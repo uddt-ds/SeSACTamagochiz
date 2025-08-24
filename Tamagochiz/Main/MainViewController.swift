@@ -25,10 +25,10 @@ final class MainViewController: UIViewController {
 
     @IBOutlet var monsterLabelBgView: UIView!
     @IBOutlet var monsterNameLabel: UILabel!
-    
+
     @IBOutlet var foodTextFieldUnderLine: UIView!
     @IBOutlet var waterTextFieldUnderLine: UIView!
-    
+
     @IBOutlet var foodButton: UIButton!
     @IBOutlet var waterButton: UIButton!
 
@@ -39,33 +39,8 @@ final class MainViewController: UIViewController {
     //1. VC에서 밥 버튼을 누르면 1을 더하고 UserDefault에 저장
     //2. VC에서 물 버튼을 누르면 1을 더하고 UserDefault에 저장
     //3.
-    var nickname: String = "대장" {
-        didSet {
-            UserDefaults.standard.set(nickname, forKey: "nickname")
-        }
-    }
-    var level: Int = 0 {
-        didSet {
-            UserDefaults.standard.set(level, forKey: "level")
-        }
-    }
-    var foodCount: Int = 0 {
-        didSet {
-            UserDefaults.standard.set(foodCount, forKey: "food")
-        }
-    }
 
-    var waterCount: Int = 0 {
-        didSet {
-            UserDefaults.standard.set(waterCount, forKey: "water")
-        }
-    }
 
-    let foodValue = BehaviorRelay(value: 0)
-    let foodError = BehaviorRelay(value: "")
-    let waterValue = BehaviorRelay(value: 0)
-    let waterError = BehaviorRelay(value: "")
-    let levelValue = BehaviorRelay(value: 0)
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -74,7 +49,7 @@ final class MainViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        designMainImageView()
+//        designMainImageView()
         designBulloonImageView()
         designBulloonMessage()
         setupMonsterLabel()
@@ -82,135 +57,163 @@ final class MainViewController: UIViewController {
         setupButtons()
         designTextFieldUI()
         designProfileButton()
-        loadData()
+//        loadData()
         bind()
 //        updateState()
     }
 
     private func bind() {
 
-        let totalFoodCountRelay = BehaviorRelay(value: self.foodCount)
-        let totalWaterCountRelay = BehaviorRelay(value: self.waterCount)
+        let viewDidLoadTrigger = Observable.just(())
 
-        foodButton.rx.tap
-            .withLatestFrom(foodTextField.rx.text.orEmpty)
-            .map { $0.isEmpty ? "1" : $0 }
-            .compactMap { Int($0) }
-            .withUnretained(self)
-            .flatMap { owner, value -> Observable<Int> in
-                if value > -1 && value < 100 {
-                    return .just(value)
-                } else {
-                    owner.showAlert(title: "밥은 1 ~ 99까지만 먹일 수 있어요")
-                    return .empty()
-                }
-            }
-            .bind(with: self) { owner, value in
-                owner.foodValue.accept(value)
-            }
-            .disposed(by: disposeBag)
+        let input = MainViewModel.Input(viewDidLoadTrigger: viewDidLoadTrigger, foodTextField: foodTextField.rx.text.orEmpty, waterTextField: waterTextField.rx.text.orEmpty, foodButtonTapped: foodButton.rx.tap, waterButtonTapped: waterButton.rx.tap)
 
-        foodValue
-            .bind(with: self) { owner, value in
-                owner.foodCount += value
-                totalFoodCountRelay.accept(owner.foodCount)
-            }
-            .disposed(by: disposeBag)
+        let output = viewModel.transform(input: input)
 
-        waterButton.rx.tap
-            .withLatestFrom(waterTextField.rx.text.orEmpty)
-            .map { $0.isEmpty ? "1" : $0 }
-            .compactMap { Int($0) }
-            .withUnretained(self)
-            .flatMap { owner, value -> Observable<Int> in
-                if value > -1 && value < 50 {
-                    return .just(value)
-                } else {
-                    owner.showAlert(title: "물은 1 ~ 49까지만 먹일 수 있어요")
-                    return .empty()
-                }
-            }
-            .asDriver(onErrorJustReturn: 0)
-            .drive(with: self) { owner, value in
-                owner.waterValue.accept(value)
-            }
-            .disposed(by: disposeBag)
-
-        waterValue
+        output.foodErrorMessage
             .asDriver()
             .drive(with: self) { owner, value in
-                owner.waterCount += value
-                totalWaterCountRelay.accept(owner.waterCount)
+                owner.showAlert(title: value)
             }
             .disposed(by: disposeBag)
 
-        Observable.combineLatest(totalFoodCountRelay.asObservable(), totalWaterCountRelay.asObservable())
-            .withUnretained(self)
-            .map { owner, result in
-                let calculate = ((Double(result.0) / 5.0) + (Double(result.1) / 2.0)) * 0.1
-                let calculateResult = Int(calculate)
-                print(calculateResult)
-                return calculateResult
-            }
-            .bind(with: self) { owner, value in
-                owner.levelValue.accept(value)
-            }
-            .disposed(by: disposeBag)
-
-        levelValue
+        output.waterErrorMessage
             .asDriver()
             .drive(with: self) { owner, value in
-                owner.level = value
-                print("levelCount: ", owner.level)
+                owner.showAlert(title: value)
             }
             .disposed(by: disposeBag)
 
-        Observable.combineLatest(totalFoodCountRelay.asObservable(), totalWaterCountRelay.asObservable(), levelValue.asObservable())
-            .withUnretained(self)
-            .map { owner, result in
-                "LV\(result.2) • 밥알 \(result.0)개 • 물방울 \(result.1)개"
-            }
-            .asDriver(onErrorJustReturn: "")
+        output.totalResultLabel
+            .asDriver()
             .drive(textLabel.rx.text)
             .disposed(by: disposeBag)
+
+        output.tamagochiMessage
+            .asDriver()
+            .drive(messageLabel.rx.text)
+            .disposed(by: disposeBag)
+//
+//        foodButton.rx.tap
+//            .withLatestFrom(foodTextField.rx.text.orEmpty)
+//            .map { $0.isEmpty ? "1" : $0 }
+//            .compactMap { Int($0) }
+//            .withUnretained(self)
+//            .flatMap { owner, value -> Observable<Int> in
+//                if value > -1 && value < 100 {
+//                    return .just(value)
+//                } else {
+//                    owner.showAlert(title: "밥은 1 ~ 99까지만 먹일 수 있어요")
+//                    return .empty()
+//                }
+//            }
+//            .bind(with: self) { owner, value in
+//                owner.foodValue.accept(value)
+//            }
+//            .disposed(by: disposeBag)
+//
+//        foodValue
+//            .bind(with: self) { owner, value in
+//                owner.foodCount += value
+//                totalFoodCountRelay.accept(owner.foodCount)
+//            }
+//            .disposed(by: disposeBag)
+//
+//        waterButton.rx.tap
+//            .withLatestFrom(waterTextField.rx.text.orEmpty)
+//            .map { $0.isEmpty ? "1" : $0 }
+//            .compactMap { Int($0) }
+//            .withUnretained(self)
+//            .flatMap { owner, value -> Observable<Int> in
+//                if value > -1 && value < 50 {
+//                    return .just(value)
+//                } else {
+//                    owner.showAlert(title: "물은 1 ~ 49까지만 먹일 수 있어요")
+//                    return .empty()
+//                }
+//            }
+//            .asDriver(onErrorJustReturn: 0)
+//            .drive(with: self) { owner, value in
+//                owner.waterValue.accept(value)
+//            }
+//            .disposed(by: disposeBag)
+//
+//        waterValue
+//            .asDriver()
+//            .drive(with: self) { owner, value in
+//                owner.waterCount += value
+//                totalWaterCountRelay.accept(owner.waterCount)
+//            }
+//            .disposed(by: disposeBag)
+//
+//        Observable.combineLatest(totalFoodCountRelay.asObservable(), totalWaterCountRelay.asObservable())
+//            .withUnretained(self)
+//            .map { owner, result in
+//                let calculate = ((Double(result.0) / 5.0) + (Double(result.1) / 2.0)) * 0.1
+//                let calculateResult = Int(calculate)
+//                print(calculateResult)
+//                return calculateResult
+//            }
+//            .bind(with: self) { owner, value in
+//                owner.levelValue.accept(value)
+//            }
+//            .disposed(by: disposeBag)
+//
+//        levelValue
+//            .asDriver()
+//            .drive(with: self) { owner, value in
+//                owner.level = value
+//                print("levelCount: ", owner.level)
+//            }
+//            .disposed(by: disposeBag)
+//
+//        Observable.combineLatest(totalFoodCountRelay.asObservable(), totalWaterCountRelay.asObservable(), levelValue.asObservable())
+//            .withUnretained(self)
+//            .map { owner, result in
+//                "LV\(result.2) • 밥알 \(result.0)개 • 물방울 \(result.1)개"
+//            }
+//            .asDriver(onErrorJustReturn: "")
+//            .drive(textLabel.rx.text)
+//            .disposed(by: disposeBag)
     }
 
+
 //    // TODO: ImageView 변경하는 로직 -> 다마고치 Type에 따라서 다른 이미지로 변경해야 함 (다마고치 타입별 모델이 필요함)
-    private func designMainImageView() {
-        switch level {
-        case 1: mainImageView.image = ._2_1
-        case 2: mainImageView.image = ._2_2
-        case 3: mainImageView.image = ._2_3
-        case 4: mainImageView.image = ._2_4
-        case 5: mainImageView.image = ._2_5
-        case 6: mainImageView.image = ._2_6
-        case 7: mainImageView.image = ._2_7
-        case 8: mainImageView.image = ._2_8
-        case 9: mainImageView.image = ._2_9
-        case 10: mainImageView.image = ._2_9
-        default: mainImageView.image = ._3_1
-        }
-        mainImageView.contentMode = .scaleAspectFit
-    }
-//
+//    private func designMainImageView() {
+//        switch level {
+//        case 1: mainImageView.image = ._2_1
+//        case 2: mainImageView.image = ._2_2
+//        case 3: mainImageView.image = ._2_3
+//        case 4: mainImageView.image = ._2_4
+//        case 5: mainImageView.image = ._2_5
+//        case 6: mainImageView.image = ._2_6
+//        case 7: mainImageView.image = ._2_7
+//        case 8: mainImageView.image = ._2_8
+//        case 9: mainImageView.image = ._2_9
+//        case 10: mainImageView.image = ._2_9
+//        default: mainImageView.image = ._3_1
+//        }
+//        mainImageView.contentMode = .scaleAspectFit
+//    }
+////
     private func designBulloonImageView() {
         bulloonImageView.image = .bubble
         bulloonImageView.contentMode = .scaleAspectFit
     }
 
 //    // TODO: ViewModel에 있는 Message로 변경하여 재반영 예정
-    private func showBulloonMessage() {
-        let messageDb = [
-            #"\#(nickname)님,\#n복습 하셨나요?"#,
-            #"\#(nickname)님,\#n깃허브 푸시하셨나요?"#,
-            #"\#(nickname)님,\#n5시 칼퇴하실건가요?"#,
-            #"\#(nickname)님,\#n배고파요 밥주세요"#,
-            #"잘 챙겨주셔서 레벨업 했어요!\#n\#(nickname)님"#,
-            "밥 먹으니까 졸려요"
-        ]
+//    private func showBulloonMessage() {
+//        let messageDb = [
+//            #"\#(nickname)님,\#n복습 하셨나요?"#,
+//            #"\#(nickname)님,\#n깃허브 푸시하셨나요?"#,
+//            #"\#(nickname)님,\#n5시 칼퇴하실건가요?"#,
+//            #"\#(nickname)님,\#n배고파요 밥주세요"#,
+//            #"잘 챙겨주셔서 레벨업 했어요!\#n\#(nickname)님"#,
+//            "밥 먹으니까 졸려요"
+//        ]
 
-        messageLabel.text = messageDb.randomElement()
-    }
+//        messageLabel.text = messageDb.randomElement()
+//    }
 
 //    // TODO: ViewModel에 있는 UserData 가져와서 해당 닉네임으로 반영
 //    private func setupNavigationBar() {
@@ -290,12 +293,12 @@ final class MainViewController: UIViewController {
     }
 
     // TODO: ViewModel에서 넘겨준 데이터 사용하기
-    private func loadData() {
-        nickname = UserDefaults.standard.string(forKey: "nickname") ?? "게스트"
-        level = UserDefaults.standard.integer(forKey: "level")
-        foodCount = UserDefaults.standard.integer(forKey: "food")
-        waterCount = UserDefaults.standard.integer(forKey: "water")
-    }
+//    private func loadData() {
+//        nickname = UserDefaults.standard.string(forKey: "nickname") ?? "게스트"
+//        level = UserDefaults.standard.integer(forKey: "level")
+//        foodCount = UserDefaults.standard.integer(forKey: "food")
+//        waterCount = UserDefaults.standard.integer(forKey: "water")
+//    }
 
     private func showAlert(title: String) {
         let alert = UIAlertController(title: "안돼요", message: title, preferredStyle: .alert)
@@ -308,6 +311,7 @@ final class MainViewController: UIViewController {
         view.endEditing(true)
     }
 }
+
 
 extension MainViewController {
     enum AssetImage {

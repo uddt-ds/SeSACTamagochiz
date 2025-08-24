@@ -9,129 +9,182 @@ import Foundation
 import RxSwift
 import RxCocoa
 
-/*
- 1. UserDefaults Raw하게 다루기
- 2. 저장하는 시점을 언제로 하는게 좋을까? (바로 저장? View가 내려갈때 저장?)
- 3.
- */
-final class MainViewModel/*: RxViewModelProtocol */{
-    
+final class MainViewModel: RxViewModelProtocol {
+
     var disposeBag = DisposeBag()
+
+    var nickname: String = "대장" {
+        didSet {
+            UserDefaults.standard.set(nickname, forKey: "nickname")
+        }
+    }
+    var level: Int = 0 {
+        didSet {
+            UserDefaults.standard.set(level, forKey: "level")
+        }
+    }
+    var food: Int = 0 {
+        didSet {
+            UserDefaults.standard.set(food, forKey: "food")
+        }
+    }
+
+    var water: Int = 0 {
+        didSet {
+            UserDefaults.standard.set(water, forKey: "water")
+        }
+    }
+
+    init() {
+        loadData()
+    }
+
+    let foodValue = BehaviorRelay(value: 0)
+    let waterValue = BehaviorRelay(value: 0)
+    let levelValue = BehaviorRelay(value: 0)
 
     struct Input {
         let viewDidLoadTrigger: Observable<Void>
-        let feedTextField: ControlProperty<String>
+        let foodTextField: ControlProperty<String>
         let waterTextField: ControlProperty<String>
-        let feedButtonTapped: ControlEvent<Void>
+        let foodButtonTapped: ControlEvent<Void>
         let waterButtonTapped: ControlEvent<Void>
     }
 
     struct Output {
 //        let userData: BehaviorRelay<UserModel>
-        let feedCount: BehaviorRelay<Int>
+        let foodCount: BehaviorRelay<Int>
         let waterCount: BehaviorRelay<Int>
-        let totalResult: BehaviorRelay<String>
+        let levelCount: BehaviorRelay<Int>
         let tamagochiMessage: BehaviorRelay<String>
-        let feedErrorMessage: BehaviorRelay<String>
+        let foodErrorMessage: BehaviorRelay<String>
         let waterErrorMessage: BehaviorRelay<String>
+        let totalResultLabel: BehaviorRelay<String>
     }
 
-//    func transform(input: Input) -> Output {
-//
-////        let userData = BehaviorRelay<UserModel>(value: .init(nickname: "", level: 0, foodCount: 0, waterCount: 0))
-//        let feedCount = BehaviorRelay<Int>(value: 0)
-//        let waterCount = BehaviorRelay<Int>(value: 0)
-//        let feedErrorMessage = BehaviorRelay<String>(value: "")
-//        let waterErrorMessage = BehaviorRelay<String>(value: "")
-//        let totalResult = BehaviorRelay<String>(value: "")
-//        let greetingMessage = BehaviorRelay<String>(value: "")
-//
-//        // TODO: 버튼을 눌렀을 때마다 방출되는 값을 view에 binding해야 함
-//        // TODO:
-//        input.viewDidLoadTrigger
-//            .bind(with: self) { owner, _ in
-//
-//            }
-//            .disposed(by: disposeBag)
-//
-////        input.viewDidLoadTrigger
-////            .withUnretained(self)
-////            .map { owner, _ in
-////
-////            }
-////            .asDriver(onErrorJustReturn: "")
-////            .drive(with: self) { owner, value in
-////                totalResult.accept(value)
-////                print("totalResult", value)
-////            }
-////            .disposed(by: disposeBag)
-////
-////        input.feedButtonTapped
-////            .withUnretained(self)
-////            .map { owner, _ in
-////
-////            }
-////            .asDriver(onErrorJustReturn: "")
-////            .drive(with: self) { owner, value in
-////                totalResult.accept(value)
-////                print("totalResult", value)
-////            }
-////            .disposed(by: disposeBag)
-//
-//        input.feedButtonTapped
-//            .withLatestFrom(input.feedTextField)
-//            .compactMap { Int($0) }
-//            .map { !($0 > 0 && $0 < 100) }
-//            .map { $0 ? "밥은 한번에 99개까지만 먹일 수 있어요" : "" }
-//            .asDriver(onErrorJustReturn: "")
-//            .drive(with: self) { owner, value in
-//                feedErrorMessage.accept(value)
-//            }
-//            .disposed(by: disposeBag)
-//
-//        input.waterButtonTapped
-//            .withLatestFrom(input.waterTextField)
-//            .compactMap { Int($0) }
-//            .map { !($0 > 0 && $0 < 50) }
-//            .map { $0 ? "물은 한번에 49개까지만 먹일 수 있어요" : "" }
-//            .asDriver(onErrorJustReturn: "")
-//            .drive(with: self) { owner, value in
-//                waterErrorMessage.accept(value)
-//            }
-//            .disposed(by: disposeBag)
-//
-//        input.feedButtonTapped
-//            .withLatestFrom(input.feedTextField)
-//            .map{ Int($0) ?? 1 }
-//            .filter { $0 > 0 && $0 < 100 }
-//            .asDriver(onErrorJustReturn: 0)
-//            .drive(with: self) { owner, value in
-//                print(value)
-//
-//            }
-//            .disposed(by: disposeBag)
-//
-//        input.waterButtonTapped
-//            .withLatestFrom(input.waterTextField)
-//            .map { Int($0) ?? 1 }
-//            .filter { $0 > 0 && $0 < 50 }
-//            .asDriver(onErrorJustReturn: 0)
-//            .drive(with: self) { owner, value in
-//                waterCount.accept(value)
-//            }
-//            .disposed(by: disposeBag)
-//
-//        input.viewDidLoadTrigger
-////            .map {  }
-//            .asDriver(onErrorJustReturn: ())
-//            .drive(with: self) { owner, _ in
-//
-//            }
-//            .disposed(by: disposeBag)
-//
-//
-//
-//        return Output(userData: userData, feedCount: feedCount, waterCount: waterCount, totalResult: totalResult, tamagochiMessage: greetingMessage, feedErrorMessage: feedErrorMessage, waterErrorMessage: waterErrorMessage)
-//    }
+    func transform(input: Input) -> Output {
 
+        let foodCount = BehaviorRelay(value: 0)
+        let waterCount = BehaviorRelay(value: 0)
+        let levelCount = BehaviorRelay(value: 0)
+        let tamagochiMessage = BehaviorRelay(value: "")
+        let foodErrorMessage = BehaviorRelay(value: "")
+        let waterErrorMessage = BehaviorRelay(value: "")
+        let totalReulstLabel = BehaviorRelay(value: "")
+
+        input.viewDidLoadTrigger
+            .asDriver(onErrorJustReturn: ())
+            .drive(with: self) { owner, _ in
+                foodCount.accept(owner.food)
+                waterCount.accept(owner.water)
+                levelCount.accept(owner.level)
+            }
+            .disposed(by: disposeBag)
+
+        input.foodButtonTapped
+            .withLatestFrom(input.foodTextField)
+            .map { $0.isEmpty ? "1" : $0 }
+            .compactMap { Int($0) }
+            .withUnretained(self)
+            .flatMap { owner, value -> Observable<Int> in
+                if value > -1 && value < 100 {
+                    return .just(value)
+                } else {
+                    foodErrorMessage.accept("밥은 1 ~ 99까지만 먹을 수 있어요")
+                    return .empty()
+                }
+            }
+            .bind(with: self) { owner, value in
+                owner.foodValue.accept(value)
+            }
+            .disposed(by: disposeBag)
+
+        input.foodButtonTapped
+            .withUnretained(self)
+            .map { owner, _ in
+                "밥 줘서 고마워요 \(owner.nickname)님"
+            }
+            .asDriver(onErrorJustReturn: "")
+            .drive(with: self) { owner, value in
+                tamagochiMessage.accept(value)
+            }
+            .disposed(by: disposeBag)
+
+        foodValue
+            .bind(with: self) { owner, value in
+                owner.food += value
+                foodCount.accept(owner.food)
+            }
+            .disposed(by: disposeBag)
+
+        input.waterButtonTapped
+            .withLatestFrom(input.waterTextField)
+            .map { $0.isEmpty ? "1" : $0 }
+            .compactMap { Int($0) }
+            .withUnretained(self)
+            .flatMap { owner, value -> Observable<Int> in
+                if value > -1 && value < 50 {
+                    return .just(value)
+                } else {
+                    waterErrorMessage.accept("물은 1 ~ 99까지만 먹을 수 있어요")
+                    return .empty()
+                }
+            }
+            .bind(with: self) { owner, value in
+                owner.waterValue.accept(value)
+            }
+            .disposed(by: disposeBag)
+
+        input.waterButtonTapped
+            .withUnretained(self)
+            .map { owner, _ in
+                "물 줘서 고마워요 \(owner.nickname)님"
+            }
+            .asDriver(onErrorJustReturn: "")
+            .drive(with: self) { owner, value in
+                tamagochiMessage.accept(value)
+            }
+            .disposed(by: disposeBag)
+
+        waterValue
+            .bind(with: self) { owner, value in
+                owner.water += value
+                waterCount.accept(owner.water)
+            }
+            .disposed(by: disposeBag)
+
+        Observable.combineLatest(foodCount.asObservable(), waterCount.asObservable())
+            .map { result in
+                let calculate = ((Double(result.0) / 5.0) + (Double(result.1) / 2.0)) * 0.1
+                let calculateResult = Int(calculate)
+                print(calculateResult)
+                return calculateResult
+            }
+            .bind(with: self) { owner, value in
+                owner.level = value
+                levelCount.accept(value)
+            }
+            .disposed(by: disposeBag)
+
+        Observable.combineLatest(foodCount.asObservable(), waterCount.asObservable(), levelCount.asObservable())
+            .withUnretained(self)
+            .map { owner, result in
+                "LV\(result.2) • 밥알 \(result.0)개 • 물방울 \(result.1)개"
+            }
+            .asDriver(onErrorJustReturn: "")
+            .drive(with: self) { owner, value in
+                totalReulstLabel.accept(value)
+            }
+            .disposed(by: disposeBag)
+
+
+        return Output(foodCount: foodCount, waterCount: waterCount, levelCount: levelCount, tamagochiMessage: tamagochiMessage, foodErrorMessage: foodErrorMessage, waterErrorMessage: waterErrorMessage, totalResultLabel: totalReulstLabel)
+    }
+
+    func loadData() {
+        nickname = UserDefaults.standard.string(forKey: "nickname") ?? "기본값"
+        level = UserDefaults.standard.integer(forKey: "level")
+        food = UserDefaults.standard.integer(forKey: "food")
+        water = UserDefaults.standard.integer(forKey: "water")
+    }
 }
