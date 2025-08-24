@@ -57,7 +57,7 @@ final class MainViewController: UIViewController {
         setupButtons()
         designTextFieldUI()
         designProfileButton()
-//        loadData()
+        setupNavigationBar()
         bind()
 //        updateState()
     }
@@ -93,88 +93,15 @@ final class MainViewController: UIViewController {
             .asDriver()
             .drive(messageLabel.rx.text)
             .disposed(by: disposeBag)
-//
-//        foodButton.rx.tap
-//            .withLatestFrom(foodTextField.rx.text.orEmpty)
-//            .map { $0.isEmpty ? "1" : $0 }
-//            .compactMap { Int($0) }
-//            .withUnretained(self)
-//            .flatMap { owner, value -> Observable<Int> in
-//                if value > -1 && value < 100 {
-//                    return .just(value)
-//                } else {
-//                    owner.showAlert(title: "밥은 1 ~ 99까지만 먹일 수 있어요")
-//                    return .empty()
-//                }
-//            }
-//            .bind(with: self) { owner, value in
-//                owner.foodValue.accept(value)
-//            }
-//            .disposed(by: disposeBag)
-//
-//        foodValue
-//            .bind(with: self) { owner, value in
-//                owner.foodCount += value
-//                totalFoodCountRelay.accept(owner.foodCount)
-//            }
-//            .disposed(by: disposeBag)
-//
-//        waterButton.rx.tap
-//            .withLatestFrom(waterTextField.rx.text.orEmpty)
-//            .map { $0.isEmpty ? "1" : $0 }
-//            .compactMap { Int($0) }
-//            .withUnretained(self)
-//            .flatMap { owner, value -> Observable<Int> in
-//                if value > -1 && value < 50 {
-//                    return .just(value)
-//                } else {
-//                    owner.showAlert(title: "물은 1 ~ 49까지만 먹일 수 있어요")
-//                    return .empty()
-//                }
-//            }
-//            .asDriver(onErrorJustReturn: 0)
-//            .drive(with: self) { owner, value in
-//                owner.waterValue.accept(value)
-//            }
-//            .disposed(by: disposeBag)
-//
-//        waterValue
-//            .asDriver()
-//            .drive(with: self) { owner, value in
-//                owner.waterCount += value
-//                totalWaterCountRelay.accept(owner.waterCount)
-//            }
-//            .disposed(by: disposeBag)
-//
-//        Observable.combineLatest(totalFoodCountRelay.asObservable(), totalWaterCountRelay.asObservable())
-//            .withUnretained(self)
-//            .map { owner, result in
-//                let calculate = ((Double(result.0) / 5.0) + (Double(result.1) / 2.0)) * 0.1
-//                let calculateResult = Int(calculate)
-//                print(calculateResult)
-//                return calculateResult
-//            }
-//            .bind(with: self) { owner, value in
-//                owner.levelValue.accept(value)
-//            }
-//            .disposed(by: disposeBag)
-//
-//        levelValue
-//            .asDriver()
-//            .drive(with: self) { owner, value in
-//                owner.level = value
-//                print("levelCount: ", owner.level)
-//            }
-//            .disposed(by: disposeBag)
-//
-//        Observable.combineLatest(totalFoodCountRelay.asObservable(), totalWaterCountRelay.asObservable(), levelValue.asObservable())
-//            .withUnretained(self)
-//            .map { owner, result in
-//                "LV\(result.2) • 밥알 \(result.0)개 • 물방울 \(result.1)개"
-//            }
-//            .asDriver(onErrorJustReturn: "")
-//            .drive(textLabel.rx.text)
-//            .disposed(by: disposeBag)
+
+        Observable.combineLatest(output.tamagochiRawValue, output.levelCount)
+            .map { result in
+                return TamaCategory(rawValue: result.0)?.getImage(with: result.1) ?? UIImage()
+            }
+            .asDriver(onErrorJustReturn: UIImage())
+            .drive(mainImageView.rx.image)
+            .disposed(by: disposeBag)
+
     }
 
 
@@ -215,11 +142,10 @@ final class MainViewController: UIViewController {
 //        messageLabel.text = messageDb.randomElement()
 //    }
 
-//    // TODO: ViewModel에 있는 UserData 가져와서 해당 닉네임으로 반영
-//    private func setupNavigationBar() {
-//        nickname = UserDefaults.standard.string(forKey: "nickname") ?? nickname
-//        self.navigationItem.title = "\(nickname)님의 다마고치"
-//    }
+    private func setupNavigationBar() {
+        let nickname = UserDefaults.standard.string(forKey: "nickname") ?? ""
+        self.navigationItem.title = "\(nickname)님의 다마고치"
+    }
 
     private func designBulloonMessage() {
         messageLabel.font = .systemFont(ofSize: 13)
