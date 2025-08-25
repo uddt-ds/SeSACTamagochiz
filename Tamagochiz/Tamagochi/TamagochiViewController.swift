@@ -114,9 +114,18 @@ final class TamagochiViewController: UIViewController {
 //                owner.tamagochiModel = model
                 UserDefaults.standard.set(model.name, forKey: UserDefaultsKey.tamagochiName.rawValue)
                 UserDefaults.standard.set(model.tamaCategory.rawValue, forKey: UserDefaultsKey.tamagochi.rawValue)
-                let vc = TamagochiPopupViewController(tamaModel: model, okButtonTapped: owner.pushMainView)
-                vc.modalPresentationStyle = .overCurrentContext
-                owner.present(vc, animated: true)
+
+                let nickname = UserDefaults.standard.string(forKey: "nickname")
+
+                if nickname == "대장" {
+                    let vc = TamagochiPopupViewController(tamaModel: model, buttonTitle: "시작하기",okButtonTapped: owner.pushMainView)
+                    vc.modalPresentationStyle = .overCurrentContext
+                    owner.present(vc, animated: true)
+                } else {
+                    let vc = TamagochiPopupViewController(tamaModel: model, buttonTitle: "변경하기",okButtonTapped: owner.pushMainView)
+                    vc.modalPresentationStyle = .overCurrentContext
+                    owner.present(vc, animated: true)
+                }
             }
             .disposed(by: disposeBag)
     }

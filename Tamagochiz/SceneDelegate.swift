@@ -17,9 +17,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window = UIWindow(windowScene: scene)
 
         let nickname = UserDefaults.standard.string(forKey: UserDefaultsKey.nickname.rawValue)
-
-        //TODO: 분기 로직 수정 필요. "게스트"로 설정해두고 트리거로 쓰는 방식이 좋은 구조가 아님, 닉네임 설정을 하지 않고 넘어가면 자동으로 '대장'으로 설정됨
-        if nickname == "게스트" {
+//
+//        //TODO: 분기 로직 수정 필요. "게스트"로 설정해두고 트리거로 쓰는 방식이 좋은 구조가 아님, 닉네임 설정을 하지 않고 넘어가면 자동으로 '대장'으로 설정됨
+        if nickname == "대장" {
             let vc = TamagochiViewController()
             let nav = UINavigationController(rootViewController: vc)
             //TODO: 이 설정 로직이 sceneDelegate에 있는게 적절한지 고민 필요
@@ -30,6 +30,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             let nav = UINavigationController(rootViewController: vc)
             window?.rootViewController = nav
         }
+//        let vc = TamagochiViewController()
+//        let nav = UINavigationController(rootViewController: vc)
+//        window?.rootViewController = nav
         window?.makeKeyAndVisible()
     }
 
