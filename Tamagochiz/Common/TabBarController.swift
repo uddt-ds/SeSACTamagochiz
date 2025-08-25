@@ -11,8 +11,6 @@ final class TabBarController: UITabBarController {
     
     // 첫번째 VC가 상황에 따라 다른데 어떻게 TabBar에 첫번째 VC에 연결하지..
 
-    let nickname = UserDefaults.standard.string(forKey: UserDefaultsKey.nickname.rawValue)
-
     var firstVC = UIViewController()
     var secondVC = LottoViewController()
     var thirdVC = BoxOfficeViewController()
@@ -28,7 +26,9 @@ final class TabBarController: UITabBarController {
     }
 
     private func setupView() {
-        if nickname == "대장" {
+        let tamagochi = UserDefaultsManager.tamagochi
+
+        if tamagochi == 0 {
             let vc = TamagochiViewController()
             let nav = UINavigationController(rootViewController: vc)
             firstVC = nav
