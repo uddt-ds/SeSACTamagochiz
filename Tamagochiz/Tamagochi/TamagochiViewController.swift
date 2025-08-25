@@ -14,14 +14,6 @@ final class TamagochiViewController: UIViewController {
 
     var disposeBag = DisposeBag()
 
-//    var tamagochiModel: TamagochiModel = .init(tamaCategory: .tama1, name: "", image: ""){
-//        didSet {
-//            if let decodedData = try? JSONEncoder().encode(tamagochiModel) {
-//                UserDefaults.standard.set(decodedData, forKey: "tamagochiModel")
-//            }
-//        }
-//    }
-
     let viewModel = TamagochiViewModel()
 
     private lazy var collectionView: UICollectionView = {
@@ -110,7 +102,6 @@ final class TamagochiViewController: UIViewController {
             .disposed(by: disposeBag)
 
         collectionView.rx.modelSelected(TamagochiModel.self)
-            .debug()
             .bind(with: self) { owner, model in
                 let tamagochi = UserDefaultsManager.tamagochi
 

@@ -27,12 +27,6 @@ final class MainViewModel: RxViewModelProtocol {
     init() {
         loadData()
 
-//        if let data = UserDefaults.standard.data(forKey: "tamagochiModel") {
-//            if let decodedData = try? JSONDecoder().decode(TamagochiModel.self, from: data) {
-//                tamagochiModel = decodedData
-//            }
-//        }
-
         messageDb = [#"\#(nickname)님,\#n복습 하셨나요?"#,
         #"\#(nickname)님,\#n깃허브 푸시하셨나요?"#,
         #"\#(nickname)님,\#n5시 칼퇴하실건가요?"#,
