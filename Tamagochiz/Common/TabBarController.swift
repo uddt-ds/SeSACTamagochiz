@@ -1,0 +1,51 @@
+//
+//  TabBarController.swift
+//  Tamagochiz
+//
+//  Created by Lee on 8/25/25.
+//
+
+import UIKit
+
+final class TabBarController: UITabBarController {
+    
+    // 첫번째 VC가 상황에 따라 다른데 어떻게 TabBar에 첫번째 VC에 연결하지..
+
+    let nickname = UserDefaults.standard.string(forKey: UserDefaultsKey.nickname.rawValue)
+
+    var firstVC = UIViewController()
+    var secondVC = LottoViewController()
+    var thirdVC = BoxOfficeViewController()
+
+    init() {
+        super.init(nibName: nil, bundle: nil)
+        setupView()
+        setupTapBarUI()
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    private func setupView() {
+        if nickname == "대장" {
+            let vc = TamagochiViewController()
+            let nav = UINavigationController(rootViewController: vc)
+            firstVC = nav
+        } else {
+            let vc = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "MainViewController")
+            let nav = UINavigationController(rootViewController: vc)
+            firstVC = nav
+        }
+
+    }
+
+    private func setupTapBarUI() {
+        firstVC.tabBarItem = UITabBarItem(title: "First", image: UIImage(systemName: "lasso.badge.sparkles"), tag: 0)
+        secondVC.tabBarItem = UITabBarItem(title: "LOTTO", image: UIImage(systemName: "l.circle"), tag: 1)
+        thirdVC.tabBarItem = UITabBarItem(title: "BOXOFFICE", image: UIImage(systemName: "popcorn.circle"), tag: 2)
+
+        viewControllers = [firstVC, secondVC, thirdVC]
+    }
+
+}
