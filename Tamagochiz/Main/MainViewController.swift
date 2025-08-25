@@ -36,12 +36,10 @@ final class MainViewController: UIViewController {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-//        initialSetup()
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
-//        designMainImageView()
         designBulloonImageView()
         designBulloonMessage()
         setupMonsterLabel()
@@ -51,7 +49,6 @@ final class MainViewController: UIViewController {
         designProfileButton()
         setupNavigationBar()
         bind()
-//        updateState()
     }
 
     private func bind() {
@@ -123,11 +120,6 @@ final class MainViewController: UIViewController {
         messageLabel.numberOfLines = 0
         messageLabel.textAlignment = .center
     }
-
-//    private func initialSetup() {
-//        setupNavigationBar()
-//        showBulloonMessage()
-//    }
 
     private func designProfileButton() {
         let image = UIImage(systemName: "person.circle")
