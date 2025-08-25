@@ -189,13 +189,13 @@ final class TamagochiPopupViewController: UIViewController {
     private func bind() {
         cancelButton.rx.tap
             .bind(with: self) { owner, _ in
-                owner.dismiss(animated: true)
+                owner.dismiss(animated: false)
             }
             .disposed(by: disposeBag)
 
         okButton.rx.tap
             .bind(with: self) { owner, _ in
-                owner.dismiss(animated: true) {
+                owner.dismiss(animated: false) {
                     owner.okButtonTapped?()
                 }
             }

@@ -112,12 +112,12 @@ final class TamagochiViewController: UIViewController {
                     let viewModel = TamagochiPopupViewModel(tamaModel: model, buttonTitle: "시작하기")
                     let vc = TamagochiPopupViewController(viewModel: viewModel, okButtonTapped: owner.pushMainView)
                     vc.modalPresentationStyle = .overCurrentContext
-                    owner.present(vc, animated: true)
+                    owner.present(vc, animated: false)
                 } else {
                     let viewModel = TamagochiPopupViewModel(tamaModel: model, buttonTitle: "변경하기")
                     let vc = TamagochiPopupViewController(viewModel: viewModel, okButtonTapped: owner.pushMainView)
                     vc.modalPresentationStyle = .overCurrentContext
-                    owner.present(vc, animated: true)
+                    owner.present(vc, animated: false)
                 }
             }
             .disposed(by: disposeBag)
