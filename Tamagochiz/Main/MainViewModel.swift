@@ -26,9 +26,9 @@ final class MainViewModel: RxViewModelProtocol {
         }
     }
 
-    var tamagochiModel: TamagochiModel = .init(tamaCategory: .tama1, name: "", image: "")
+    var tamagochiModel: TamagochiModel = .init(tamaCategory: .tama1, name: "", image: "", tamaMessage: "")
 
-    var nickname: String = "대장" {
+    var nickname: String = "" {
         didSet {
             UserDefaults.standard.set(nickname, forKey: UserDefaultsKey.nickname.rawValue)
         }
@@ -198,6 +198,8 @@ final class MainViewModel: RxViewModelProtocol {
                 let calculateResult = Int(calculate)
                 if calculateResult == 0 {
                     return 1
+                } else if calculateResult >= 10 {
+                    return 10
                 } else {
                     return calculateResult
                 }
@@ -233,7 +235,7 @@ final class MainViewModel: RxViewModelProtocol {
         let rawValue = UserDefaults.standard.integer(forKey: UserDefaultsKey.tamagochi.rawValue)
         tamagochi = TamaCategory(rawValue: rawValue) ?? .tama1
         tamagochiName = UserDefaults.standard.string(forKey: UserDefaultsKey.tamagochiName.rawValue) ?? ""
-        nickname = UserDefaults.standard.string(forKey: UserDefaultsKey.nickname.rawValue) ?? "게스트"
+        nickname = UserDefaults.standard.string(forKey: UserDefaultsKey.nickname.rawValue) ?? "대장"
         level = UserDefaults.standard.integer(forKey:UserDefaultsKey.level.rawValue)
         food = UserDefaults.standard.integer(forKey: UserDefaultsKey.food.rawValue)
         water = UserDefaults.standard.integer(forKey: UserDefaultsKey.water.rawValue)

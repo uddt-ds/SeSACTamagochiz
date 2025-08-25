@@ -14,10 +14,11 @@ enum TamaCategory: Int, Codable {
     case isReady
 
     func getImage(with level: Int) -> UIImage {
+
         switch self {
-        case .tama1: return UIImage(named: "\(TamaCategory.tama1.rawValue)-\(level)") ?? UIImage()
-        case .tama2: return UIImage(named: "\(TamaCategory.tama2.rawValue)-\(level)") ?? UIImage()
-        case .tama3: return UIImage(named: "\(TamaCategory.tama3.rawValue)-\(level)") ?? UIImage()
+        case .tama1: return UIImage(named: "\(TamaCategory.tama1.rawValue)-\(level)") ?? ._1_9
+        case .tama2: return UIImage(named: "\(TamaCategory.tama2.rawValue)-\(level)") ?? ._2_9
+        case .tama3: return UIImage(named: "\(TamaCategory.tama3.rawValue)-\(level)") ?? ._3_9
         case .isReady: return .no
         }
     }
