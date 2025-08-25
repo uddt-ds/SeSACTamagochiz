@@ -7,8 +7,12 @@
 
 import UIKit
 import SnapKit
+import RxSwift
+import RxCocoa
 
 final class SettingViewCell: UITableViewCell, ReusableViewProtocol {
+
+    var disposeBag = DisposeBag()
 
     private let leftImageView : UIImageView = {
         let imageView = UIImageView()
@@ -42,7 +46,7 @@ final class SettingViewCell: UITableViewCell, ReusableViewProtocol {
         return label
     }()
 
-    private let button: UIButton = {
+    fileprivate let button: UIButton = {
         let button = UIButton()
         let image = UIImage(systemName: "chevron.right")
         button.setImage(image, for: .normal)
@@ -86,6 +90,7 @@ final class SettingViewCell: UITableViewCell, ReusableViewProtocol {
 
     private func configureView() {
         contentView.backgroundColor = .clear
+        selectionStyle = .none
     }
 
     func configureCell(with data: TableViewDataModel, isHidden: Bool) {
@@ -93,5 +98,15 @@ final class SettingViewCell: UITableViewCell, ReusableViewProtocol {
         leftImageView.image = UIImage(systemName: data.image)
         subLabel.text = data.nickname
         subLabel.isHidden = isHidden
+    }
+
+    override func prepareForReuse() {
+        disposeBag = DisposeBag()
+    }
+}
+
+extension Reactive where Base: SettingViewCell {
+    var rightButtonTapped: ControlEvent<Void> {
+        return base.button.rx.tap
     }
 }
