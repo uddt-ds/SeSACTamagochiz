@@ -11,4 +11,5 @@ struct TamagochiModel: Codable {
     let tamaCategory: TamaCategory
     let name: String
     let image: String
+    let tamaMessage: String
 }
