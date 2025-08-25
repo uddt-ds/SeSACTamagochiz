@@ -22,7 +22,6 @@ final class TamagochiViewController: UIViewController {
 //        }
 //    }
 
-
     let viewModel = TamagochiViewModel()
 
     private lazy var collectionView: UICollectionView = {
@@ -115,10 +114,16 @@ final class TamagochiViewController: UIViewController {
 //                owner.tamagochiModel = model
                 UserDefaults.standard.set(model.name, forKey: UserDefaultsKey.tamagochiName.rawValue)
                 UserDefaults.standard.set(model.tamaCategory.rawValue, forKey: UserDefaultsKey.tamagochi.rawValue)
-                let vc = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(identifier: "MainViewController")
-                owner.navigationController?.setViewControllers([vc], animated: true)
+                let vc = TamagochiPopupViewController(tamaModel: model, okButtonTapped: owner.pushMainView)
+                vc.modalPresentationStyle = .overCurrentContext
+                owner.present(vc, animated: true)
             }
             .disposed(by: disposeBag)
+    }
+
+    private func pushMainView() {
+        let vc = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(identifier: "MainViewController")
+        navigationController?.setViewControllers([vc], animated: true)
     }
 }
 
