@@ -104,17 +104,14 @@ final class TamagochiPopupViewController: UIViewController {
         return stackView
     }()
 
-    var tamaData: TamagochiModel
+    var viewModel: TamagochiPopupViewModel
 
-    var buttonTitle: String
-
-    init(tamaModel: TamagochiModel, buttonTitle: String, okButtonTapped: (() -> Void)?) {
-        tamaData = tamaModel
-        self.buttonTitle = buttonTitle
+    init(viewModel: TamagochiPopupViewModel, okButtonTapped: (() -> Void)?) {
         self.okButtonTapped = okButtonTapped
+        self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
         initialConfigure()
-        okButton.setTitle(buttonTitle, for: .normal)
+        okButton.setTitle(viewModel.buttonTitle, for: .normal)
     }
 
     required init?(coder: NSCoder) {
@@ -184,9 +181,9 @@ final class TamagochiPopupViewController: UIViewController {
     }
 
     private func initialConfigure() {
-        label.text = tamaData.name
-        imageView.image = UIImage(named: tamaData.image)
-        greetLabel.text = tamaData.tamaMessage
+        label.text = viewModel.tamaData.name
+        imageView.image = UIImage(named: viewModel.tamaData.image)
+        greetLabel.text = viewModel.tamaData.tamaMessage
     }
 
     private func bind() {

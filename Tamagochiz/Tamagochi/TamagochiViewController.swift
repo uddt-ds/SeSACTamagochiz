@@ -118,11 +118,13 @@ final class TamagochiViewController: UIViewController {
                 let nickname = UserDefaults.standard.string(forKey: "nickname")
 
                 if nickname == "대장" {
-                    let vc = TamagochiPopupViewController(tamaModel: model, buttonTitle: "시작하기",okButtonTapped: owner.pushMainView)
+                    let viewModel = TamagochiPopupViewModel(tamaModel: model, buttonTitle: "시작하기")
+                    let vc = TamagochiPopupViewController(viewModel: viewModel, okButtonTapped: owner.pushMainView)
                     vc.modalPresentationStyle = .overCurrentContext
                     owner.present(vc, animated: true)
                 } else {
-                    let vc = TamagochiPopupViewController(tamaModel: model, buttonTitle: "변경하기",okButtonTapped: owner.pushMainView)
+                    let viewModel = TamagochiPopupViewModel(tamaModel: model, buttonTitle: "변경하기")
+                    let vc = TamagochiPopupViewController(viewModel: viewModel, okButtonTapped: owner.pushMainView)
                     vc.modalPresentationStyle = .overCurrentContext
                     owner.present(vc, animated: true)
                 }
