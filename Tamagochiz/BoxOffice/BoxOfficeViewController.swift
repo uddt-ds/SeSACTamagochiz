@@ -90,12 +90,3 @@ final class BoxOfficeViewController: UIViewController {
             .disposed(by: disposeBag)
     }
 }
-
-extension BoxOfficeViewController {
-    private func showAlert(message: String) {
-        let alert = UIAlertController(title: "경고", message: message, preferredStyle: .alert)
-        let action = UIAlertAction(title: "확인", style: .default)
-        alert.addAction(action)
-        present(alert, animated: true)
-    }
-}

@@ -75,8 +75,7 @@ final class MainViewModel: RxViewModelProtocol {
         let totalReulstLabel = BehaviorRelay(value: "")
 
         input.viewDidLoadTrigger
-            .asDriver(onErrorJustReturn: ())
-            .drive(with: self) { owner, _ in
+            .bind(with: self) { owner, _ in
                 foodCount.accept(owner.food)
                 waterCount.accept(owner.water)
                 levelCount.accept(owner.level)
@@ -109,8 +108,7 @@ final class MainViewModel: RxViewModelProtocol {
             .map { owner, _ in
                 "밥 줘서 고마워요 \(owner.nickname)님"
             }
-            .asDriver(onErrorJustReturn: "")
-            .drive(with: self) { owner, value in
+            .bind(with: self) { owner, value in
                 tamagochiMessage.accept(value)
             }
             .disposed(by: disposeBag)
@@ -146,8 +144,7 @@ final class MainViewModel: RxViewModelProtocol {
             .map { owner, _ in
                 "물 줘서 고마워요 \(owner.nickname)님"
             }
-            .asDriver(onErrorJustReturn: "")
-            .drive(with: self) { owner, value in
+            .bind(with: self) { owner, value in
                 tamagochiMessage.accept(value)
             }
             .disposed(by: disposeBag)
@@ -184,15 +181,13 @@ final class MainViewModel: RxViewModelProtocol {
             .map { owner, result in
                 "LV\(result.2) • 밥알 \(result.0)개 • 물방울 \(result.1)개"
             }
-            .asDriver(onErrorJustReturn: "")
-            .drive(with: self) { owner, value in
+            .bind(with: self) { owner, value in
                 totalReulstLabel.accept(value)
             }
             .disposed(by: disposeBag)
 
         tamaValue
-            .asDriver(onErrorJustReturn: 0)
-            .drive(with: self) { owner, value in
+            .bind(with: self) { owner, value in
                 tamagochiRawValue.accept(value)
                 UserDefaultsManager.setData(owner.tamagochi, key: .tamagochi)
             }
