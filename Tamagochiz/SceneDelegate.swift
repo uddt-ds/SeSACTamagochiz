@@ -11,8 +11,27 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
 
+    var alertCount: Int = 0
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
+
+        NetworkMonitor.shared.startMonitoring { [weak self] connectionStatus in
+            guard let self else { return }
+            switch connectionStatus {
+            case .satisfied:
+                print("정상 연결입니다")
+                alertCount = 0
+            case .unsatisfied:
+                if alertCount == 0 {
+                    print("네트워크 연결 끊김")
+                    self.showAlert(message: "네트워크 연결이 끊겼습니다. 통신 상태를 확인해주세요")
+                    alertCount = 1
+                }
+            default:
+                break
+            }
+        }
+
         guard let scene = (scene as? UIWindowScene) else { return }
         window = UIWindow(windowScene: scene)
 
@@ -20,6 +39,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window?.rootViewController = tabBar
         window?.makeKeyAndVisible()
     }
+
 
     func sceneDidDisconnect(_ scene: UIScene) {
         // Called as the scene is being released by the system.
@@ -49,6 +69,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // to restore the scene back to its current state.
     }
 
-
+    private func showAlert(message: String) {
+        DispatchQueue.main.async {
+            let alert = UIAlertController(title: "경고", message: message, preferredStyle: .alert)
+            let action = UIAlertAction(title: "확인", style: .default)
+            alert.addAction(action)
+            self.window?.rootViewController?.present(alert, animated: true)
+        }
+    }
 }
 
