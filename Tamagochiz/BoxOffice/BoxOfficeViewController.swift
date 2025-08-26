@@ -8,16 +8,17 @@
 import UIKit
 import RxSwift
 import RxCocoa
+import Toast
 
 final class BoxOfficeViewController: UIViewController {
 
+    private let viewModel = BoxOfficeViewModel()
+
     var disposeBag = DisposeBag()
 
-    let searchBar = UISearchBar()
+    private let searchBar = UISearchBar()
 
-    let items: [DailyBoxOfficeResult] = []
-
-    let tableView: UITableView = {
+    private let tableView: UITableView = {
         let tableView = UITableView()
         tableView.backgroundColor = .orange
         tableView.rowHeight = 120
@@ -46,13 +47,32 @@ final class BoxOfficeViewController: UIViewController {
     }
 
     private func bind() {
-        searchBar.rx.searchButtonClicked
-            .withLatestFrom(searchBar.rx.text.orEmpty)
-            .flatMap { BoxOfficeCustomObservable.getBoxOfficeData(query: $0) }
+
+        let input = BoxOfficeViewModel.Input(searchButtonClicked: searchBar.rx.searchButtonClicked, searchBarText: searchBar.rx.text.orEmpty)
+
+        let output = viewModel.transform(input: input)
+
+        output.boxOfficeData
             .bind(to: tableView.rx.items(cellIdentifier: BoxOfficeCell.identifier, cellType: BoxOfficeCell.self)) { (row, element, cell) in
                 cell.configureCell(movieName: element.movieNm)
             }
             .disposed(by: disposeBag)
-    }
 
+        output.showToast
+            .bind(with: self) { owner, value in
+                if value {
+                    owner.view.makeToast("디코딩 실패", duration: 2, position: .bottom)
+                }
+            }
+            .disposed(by: disposeBag)
+    }
+}
+
+extension BoxOfficeViewController {
+    private func showAlert(message: String) {
+        let alert = UIAlertController(title: "경고", message: message, preferredStyle: .alert)
+        let action = UIAlertAction(title: "확인", style: .default)
+        alert.addAction(action)
+        present(alert, animated: true)
+    }
 }

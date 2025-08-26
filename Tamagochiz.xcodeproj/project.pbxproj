@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		9B02E5BB2E5D99AE005F4271 /* Toast in Frameworks */ = {isa = PBXBuildFile; productRef = 9B02E5BA2E5D99AE005F4271 /* Toast */; };
 		9BC6146B2E5839A900ABA128 /* RxCocoa in Frameworks */ = {isa = PBXBuildFile; productRef = 9BC6146A2E5839A900ABA128 /* RxCocoa */; };
 		9BC6146D2E5839A900ABA128 /* RxRelay in Frameworks */ = {isa = PBXBuildFile; productRef = 9BC6146C2E5839A900ABA128 /* RxRelay */; };
 		9BC6146F2E5839A900ABA128 /* RxSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 9BC6146E2E5839A900ABA128 /* RxSwift */; };
@@ -44,6 +45,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9B02E5BB2E5D99AE005F4271 /* Toast in Frameworks */,
 				9BCEBE322E5C273400563726 /* Alamofire in Frameworks */,
 				9BC6146F2E5839A900ABA128 /* RxSwift in Frameworks */,
 				9BC614722E5839B200ABA128 /* SnapKit in Frameworks */,
@@ -96,6 +98,7 @@
 				9BC6146E2E5839A900ABA128 /* RxSwift */,
 				9BC614712E5839B200ABA128 /* SnapKit */,
 				9BCEBE312E5C273400563726 /* Alamofire */,
+				9B02E5BA2E5D99AE005F4271 /* Toast */,
 			);
 			productName = Tamagochiz;
 			productReference = 9BC614412E58302700ABA128 /* Tamagochiz.app */;
@@ -129,6 +132,7 @@
 				9BC614692E5839A900ABA128 /* XCRemoteSwiftPackageReference "RxSwift" */,
 				9BC614702E5839B200ABA128 /* XCRemoteSwiftPackageReference "SnapKit" */,
 				9BCEBE302E5C273400563726 /* XCRemoteSwiftPackageReference "Alamofire" */,
+				9B02E5B92E5D99AE005F4271 /* XCRemoteSwiftPackageReference "Toast-Swift" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 9BC614422E58302700ABA128 /* Products */;
@@ -168,6 +172,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 4G4JFKFU2U;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Tamagochiz/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "이다성";
@@ -201,6 +206,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 4G4JFKFU2U;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Tamagochiz/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "이다성";
@@ -370,6 +376,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		9B02E5B92E5D99AE005F4271 /* XCRemoteSwiftPackageReference "Toast-Swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/scalessec/Toast-Swift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.1.1;
+			};
+		};
 		9BC614692E5839A900ABA128 /* XCRemoteSwiftPackageReference "RxSwift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/ReactiveX/RxSwift.git";
@@ -397,6 +411,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		9B02E5BA2E5D99AE005F4271 /* Toast */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 9B02E5B92E5D99AE005F4271 /* XCRemoteSwiftPackageReference "Toast-Swift" */;
+			productName = Toast;
+		};
 		9BC6146A2E5839A900ABA128 /* RxCocoa */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 9BC614692E5839A900ABA128 /* XCRemoteSwiftPackageReference "RxSwift" */;

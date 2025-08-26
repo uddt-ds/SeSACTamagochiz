@@ -11,6 +11,23 @@ import Alamofire
 
 final class BoxOfficeCustomObservable {
 
+    static func getBoxOfficeSingleData(query: String) -> Single<Result<[DailyBoxOfficeResult], NetworkError>> {
+        return Single.create { value in
+            let url = "https://www.kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/searchDailyBoxOfficeList.json?key=db57e192674e643639b0af1738f61186&targetDt=\(query)"
+            AF.request(url)
+                .validate(statusCode: 200..<300)
+                .responseDecodable(of: BoxOfficeModel.self) { responseData in
+                    switch responseData.result {
+                    case .success(let model):
+                        value(.success(.success(model.boxOfficeResult.dailyBoxOfficeList)))
+                    case .failure(let error):
+                        value(.success(.failure(.failDecoding)))
+                    }
+                }
+            return Disposables.create()
+        }
+    }
+
     static func getBoxOfficeData(query: String) -> Observable<[DailyBoxOfficeResult]> {
         return Observable.create { value in
             let url = "https://www.kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/searchDailyBoxOfficeList.json?key=db57e192674e643639b0af1738f61186&targetDt=\(query)"
