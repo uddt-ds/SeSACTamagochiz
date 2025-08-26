@@ -10,6 +10,7 @@ import SnapKit
 import RxSwift
 import RxCocoa
 import Alamofire
+import Toast
 
 final class LottoViewController: UIViewController {
 
@@ -20,6 +21,7 @@ final class LottoViewController: UIViewController {
     private let textField: UITextField = {
         let textField = UITextField()
         textField.borderStyle = .line
+        textField.keyboardType = .numberPad
         return textField
     }()
 
@@ -42,6 +44,7 @@ final class LottoViewController: UIViewController {
         super.viewDidLoad()
         configureView()
         bind()
+        makeGesture()
     }
 
     private func configureView() {
@@ -77,15 +80,14 @@ final class LottoViewController: UIViewController {
             .bind(to: resultLabel.rx.text)
             .disposed(by: disposeBag)
 
-        output.showAlert
+
+        output.toastMessage
             .bind(with: self) { owner, value in
-                if value {
-                    owner.view.makeToast("디코딩 실패", duration: 2, position: .bottom)
-                }
+                owner.view.makeToast(value, duration: 2, position: .bottom)
             }
             .disposed(by: disposeBag)
 
-//        resultLabel.rx.text
+
 
         // 2단계
 //        button.rx.tap
@@ -123,5 +125,16 @@ final class LottoViewController: UIViewController {
 //            }
 //            .disposed(by: disposeBag)
 
+    }
+
+    private func makeGesture() {
+        let gesture = UITapGestureRecognizer()
+        view.addGestureRecognizer(gesture)
+
+        gesture.rx.event
+            .bind(with: self) { owner, _ in
+                owner.view.endEditing(true)
+            }
+            .disposed(by: disposeBag)
     }
 }

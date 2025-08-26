@@ -20,17 +20,25 @@ final class LottoViewModel: RxViewModelProtocol {
 
     struct Output {
         let lottoResult: PublishRelay<String>
-        let showAlert: PublishRelay<Bool>
+        let toastMessage: PublishRelay<String>
     }
 
     func transform(input: Input) -> Output {
         let lottoResult = PublishRelay<String>()
-        let toastAlert = PublishRelay<Bool>()
+        let toastMessage = PublishRelay<String>()
 
         input.buttonTap
             .withLatestFrom(input.textFieldText)
-            .flatMap{ text in
-                CustomObservable.fetchLottoResultData(query: text)
+            .compactMap { Int($0) }
+            .flatMap { number -> Observable<Int> in
+                if number < 0 || number > 1187 {
+                    toastMessage.accept("회차 정보를 잘못 입력했습니다")
+                    return .empty()
+                }
+                return .just(number)
+            }
+            .flatMap { number in
+                CustomObservable.fetchLottoResultData(query: "\(number)")
                     .catch { _ in
                         return Observable.never()
                     }
@@ -40,7 +48,7 @@ final class LottoViewModel: RxViewModelProtocol {
                 case .success(let lotto):
                     lottoResult.accept(lotto.totalTitle)
                 case .failure(let error):
-                    toastAlert.accept(true)
+                    toastMessage.accept(error.title)
                 }
             } onError: { owner, error in
                 print("onError", error)
@@ -51,7 +59,7 @@ final class LottoViewModel: RxViewModelProtocol {
             }
             .disposed(by: disposeBag)
 
-        return Output(lottoResult: lottoResult, showAlert: toastAlert)
+        return Output(lottoResult: lottoResult, toastMessage: toastMessage)
     }
 
 
