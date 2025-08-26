@@ -15,6 +15,8 @@ final class LottoViewController: UIViewController {
 
     var disposeBag = DisposeBag()
 
+    let viewModel = LottoViewModel()
+
     private let textField: UITextField = {
         let textField = UITextField()
         textField.borderStyle = .line
@@ -65,25 +67,22 @@ final class LottoViewController: UIViewController {
         }
     }
 
-    let lottoData: PublishRelay<LottoModel> = PublishRelay()
-
     private func bind() {
 
-        button.rx.tap
-            .withLatestFrom(textField.rx.text.orEmpty)
-            .flatMap{ CustomObservable.fetchLottoData(query: $0) }
-            .map{ $0.totalTitle }
-            .subscribe(with: self) { owner, value in
-                owner.resultLabel.rx.text.onNext(value)
-            } onError: { owner, error in
-                print("onError", error)
-            } onCompleted: { owner in
-                print("onCompleted")
-            } onDisposed: { owner in
-                print("onDisposed")
-            }
+        let input = LottoViewModel.Input(buttonTap: button.rx.tap, textFieldText: textField.rx.text.orEmpty)
+
+        let output = viewModel.transform(input: input)
+
+        output.lottoResult
+            .bind(to: resultLabel.rx.text)
             .disposed(by: disposeBag)
 
+        output.showAlert
+            .bind(with: self) { owner, value in
+                if value {
+                    owner.showAlert(message: "네트워크 연결에 실패하였습니다")
+                }
+            }
 
 //        resultLabel.rx.text
 
@@ -126,3 +125,11 @@ final class LottoViewController: UIViewController {
     }
 }
 
+extension LottoViewController {
+    private func showAlert(message: String) {
+        let alert = UIAlertController(title: "경고", message: message, preferredStyle: .alert)
+        let action = UIAlertAction(title: "확인", style: .default)
+        alert.addAction(action)
+        present(alert, animated: true)
+    }
+}
