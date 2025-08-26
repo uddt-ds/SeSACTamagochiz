@@ -94,10 +94,20 @@ final class TamagochiViewController: UIViewController {
 
         output.tamagochiRawData
             .bind(to: collectionView.rx.items) { (collectionView, row, element) in
-                let indexPath = IndexPath(row: row, section: 0)
-                guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: TamagochiCell.identifier, for: indexPath) as? TamagochiCell else { return .init() }
-                cell.configureCell(with: element)
-                return cell
+                switch row {
+                case 0..<3 :
+                    let indexPath = IndexPath(row: row, section: 0)
+                    guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: TamagochiCell.identifier, for: indexPath) as? TamagochiCell else { return .init() }
+                    cell.configureCell(with: element)
+                    return cell
+                default:
+                    let indexPath = IndexPath(row: row, section: 0)
+                    guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: TamagochiCell.identifier, for: indexPath) as? TamagochiCell else { return .init() }
+                    cell.configureCell(with: element)
+                    cell.isUserInteractionEnabled = false
+                    return cell
+                }
+
             }
             .disposed(by: disposeBag)
 
