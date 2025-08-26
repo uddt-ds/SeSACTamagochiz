@@ -9,8 +9,6 @@ import UIKit
 
 final class TabBarController: UITabBarController {
     
-    // 첫번째 VC가 상황에 따라 다른데 어떻게 TabBar에 첫번째 VC에 연결하지..
-
     var firstVC = UIViewController()
     var secondVC = LottoViewController()
     var thirdVC = BoxOfficeViewController()

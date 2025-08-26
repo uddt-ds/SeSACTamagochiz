@@ -132,7 +132,7 @@ final class MainViewModel: RxViewModelProtocol {
                 if value > -1 && value < 50 {
                     return .just(value)
                 } else {
-                    waterErrorMessage.accept("물은 1 ~ 99까지만 먹을 수 있어요")
+                    waterErrorMessage.accept("물은 1 ~ 49까지만 먹을 수 있어요")
                     return .empty()
                 }
             }
