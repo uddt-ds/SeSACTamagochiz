@@ -80,9 +80,10 @@ final class LottoViewController: UIViewController {
         output.showAlert
             .bind(with: self) { owner, value in
                 if value {
-                    owner.showAlert(message: "네트워크 연결에 실패하였습니다")
+                    owner.view.makeToast("디코딩 실패", duration: 2, position: .bottom)
                 }
             }
+            .disposed(by: disposeBag)
 
 //        resultLabel.rx.text
 
@@ -122,14 +123,5 @@ final class LottoViewController: UIViewController {
 //            }
 //            .disposed(by: disposeBag)
 
-    }
-}
-
-extension LottoViewController {
-    private func showAlert(message: String) {
-        let alert = UIAlertController(title: "경고", message: message, preferredStyle: .alert)
-        let action = UIAlertAction(title: "확인", style: .default)
-        alert.addAction(action)
-        present(alert, animated: true)
     }
 }

@@ -25,7 +25,7 @@ final class LottoViewModel: RxViewModelProtocol {
 
     func transform(input: Input) -> Output {
         let lottoResult = PublishRelay<String>()
-        let showAlert = PublishRelay<Bool>()
+        let toastAlert = PublishRelay<Bool>()
 
         input.buttonTap
             .withLatestFrom(input.textFieldText)
@@ -40,7 +40,7 @@ final class LottoViewModel: RxViewModelProtocol {
                 case .success(let lotto):
                     lottoResult.accept(lotto.totalTitle)
                 case .failure(let error):
-                    showAlert.accept(true)
+                    toastAlert.accept(true)
                 }
             } onError: { owner, error in
                 print("onError", error)
@@ -51,7 +51,7 @@ final class LottoViewModel: RxViewModelProtocol {
             }
             .disposed(by: disposeBag)
 
-        return Output(lottoResult: lottoResult, showAlert: showAlert)
+        return Output(lottoResult: lottoResult, showAlert: toastAlert)
     }
 
 
