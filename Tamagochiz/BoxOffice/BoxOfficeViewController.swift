@@ -30,6 +30,7 @@ final class BoxOfficeViewController: UIViewController {
         super.viewDidLoad()
         configureView()
         bind()
+        makeGesture()
     }
 
     private func configureView() {
@@ -58,11 +59,33 @@ final class BoxOfficeViewController: UIViewController {
             }
             .disposed(by: disposeBag)
 
-        output.showToast
-            .bind(with: self) { owner, value in
-                if value {
-                    owner.view.makeToast("디코딩 실패", duration: 2, position: .bottom)
-                }
+        output.alertMessage
+            .asDriver(onErrorJustReturn: "")
+            .drive(with: self, onNext: { owner, errorMessage in
+                owner.view.makeToast(errorMessage, duration: 2.0, position: .bottom)
+            })
+            .disposed(by: disposeBag)
+
+        searchBar.rx.textDidEndEditing
+            .bind(with: self) { owner, _ in
+                owner.view.endEditing(true)
+            }
+            .disposed(by: disposeBag)
+
+        searchBar.rx.searchButtonClicked
+            .bind(with: self) { owner, _ in
+                owner.view.endEditing(true)
+            }
+            .disposed(by: disposeBag)
+    }
+
+    private func makeGesture() {
+        let tapGesture = UITapGestureRecognizer()
+        view.addGestureRecognizer(tapGesture)
+
+        tapGesture.rx.event
+            .bind(with: self) { owner, _ in
+                owner.view.endEditing(true)
             }
             .disposed(by: disposeBag)
     }

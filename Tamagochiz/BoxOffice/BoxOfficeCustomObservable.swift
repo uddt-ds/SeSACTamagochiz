@@ -21,7 +21,14 @@ final class BoxOfficeCustomObservable {
                     case .success(let model):
                         value(.success(.success(model.boxOfficeResult.dailyBoxOfficeList)))
                     case .failure(let error):
-                        value(.success(.failure(.failDecoding)))
+                        guard let data = responseData.data else { return }
+                        do {
+                            let decodedData = try JSONDecoder().decode(BoxOfficeServerError.self, from: data)
+                            value(.success(.failure(.serverError(message: decodedData.faultInfo.message))))
+                        } catch {
+                            value(.success(.failure(.failDecoding)))
+                        }
+                        value(.success(.failure(.noData)))
                     }
                 }
             return Disposables.create()
