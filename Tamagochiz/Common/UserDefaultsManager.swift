@@ -9,65 +9,46 @@ import Foundation
 
 final class UserDefaultsManager {
 
-    static var tamagochi: Int {
-        get {
-            UserDefaults.standard.integer(forKey: Key.tamagochi.rawValue)
-        }
-    }
-
-    static var tamagochiName: String {
-        get {
-            UserDefaults.standard.string(forKey: Key.tamagochiName.rawValue) ?? "준비 중"
-        }
-    }
-
     static var tamagochiModel: TamagochiModel = .init(tamaCategory: .tama1, name: "", image: "", tamaMessage: "")
 
-    static var nickname: String {
-        get {
-            UserDefaults.standard.string(forKey: Key.nickname.rawValue) ?? "대장"
+    private var userData: UserData = .init(tamagochi: 0, tamagochiName: "", nickname: "대장", level: 1, food: 0, water: 0)
+
+    static func getData() -> UserData {
+        if let data = UserDefaults.standard.data(forKey: Key.userData.rawValue) {
+            do {
+                let decodedData = try JSONDecoder().decode(UserData.self, from: data)
+                return decodedData
+            } catch {
+                print(UserDefaultsError.failDecoding.rawValue)
+            }
+        }
+        return .init(tamagochi: 0, tamagochiName: "", nickname: "대장", level: 1, food: 0, water: 0)
+    }
+
+    static func setData(value: UserData, key: Key) {
+        if let encodedData = try? JSONEncoder().encode(value) {
+            UserDefaults.standard.set(value, forKey: key.rawValue)
         }
     }
 
-    static var level: Int {
-        get {
-            UserDefaults.standard.integer(forKey: Key.level.rawValue)
-        }
+    static func updateData(update: ((inout UserData) -> Void)) {
+        var currentData = getData()
+        update(&currentData)
+        setData(value: currentData, key: .userData)
     }
 
-    static var food: Int {
-        get {
-            UserDefaults.standard.integer(forKey: Key.food.rawValue)
-        }
-    }
-
-    static var water: Int {
-        get {
-            UserDefaults.standard.integer(forKey: Key.water.rawValue)
-        }
-    }
-
-    static func setData<T>(_ value: T, key: Key) {
-        UserDefaults.standard.set(value, forKey: key.rawValue)
-    }
-
-    static func reset() {
-        setData(0, key: .tamagochi)
-        setData("", key: .tamagochiName)
-        setData("", key: .nickname)
-        setData(0, key: .level)
-        setData(0, key: .food)
-        setData(0, key: .water)
+    static func removeData(key: Key) {
+        UserDefaults.standard.removeObject(forKey: key.rawValue)
     }
 }
 
 extension UserDefaultsManager {
     enum Key: String {
-        case food
-        case water
-        case level
-        case nickname
-        case tamagochi
-        case tamagochiName
+        case userData
+    }
+
+    enum UserDefaultsError: String, Error {
+        case failDecoding = "Userdata 디코딩 실패입니다"
+        case failEncoding = "Userdata 인코딩 실패입니다"
     }
 }
