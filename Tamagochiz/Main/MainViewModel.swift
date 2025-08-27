@@ -110,7 +110,7 @@ final class MainViewModel: RxViewModelProtocol {
             .bind(with: self) { owner, value in
                 UserDefaultsManager.updateData { data in
                     data.food += value
-                    foodCount.accept(value)
+                    foodCount.accept(data.food)
                 }
             }
             .disposed(by: disposeBag)
@@ -147,7 +147,7 @@ final class MainViewModel: RxViewModelProtocol {
             .bind(with: self) { owner, value in
                 UserDefaultsManager.updateData { data in
                     data.water += value
-                    waterCount.accept(value)
+                    waterCount.accept(data.water)
                 }
             }
             .disposed(by: disposeBag)
@@ -167,7 +167,7 @@ final class MainViewModel: RxViewModelProtocol {
             .bind(with: self) { owner, value in
                 UserDefaultsManager.updateData { data in
                     data.level = value
-                    levelCount.accept(value)
+                    levelCount.accept(data.level)
                 }
             }
             .disposed(by: disposeBag)
