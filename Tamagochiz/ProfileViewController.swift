@@ -39,7 +39,9 @@ final class ProfileViewController: UIViewController {
     private func checkTextField() {
         if let textField = nicknameTextField.text {
             if textField.count >= 2 && textField.count <= 6 {
-                UserDefaultsManager.setData(textField, key: .nickname)
+                UserDefaultsManager.updateData { data in
+                    data.nickname = textField
+                }
                 navigationController?.popViewController(animated: true)
             } else {
                 showAlert(title: CustomError.wrongInput.title)

@@ -13,19 +13,12 @@ final class MainViewModel: RxViewModelProtocol {
 
     var disposeBag = DisposeBag()
 
-
-    private var tamagochi = UserDefaultsManager.tamagochi
-
-    private var tamagochiName = UserDefaultsManager.tamagochiName
-    var nickname = UserDefaultsManager.nickname
-    private var level = UserDefaultsManager.level
-    private var food = UserDefaultsManager.food
-    private var water = UserDefaultsManager.water
-
     private var messageDb: [String] = []
 
     init() {
         loadData()
+
+        let nickname = UserDefaultsManager.getData().nickname
 
         messageDb = [#"\#(nickname)님,\#n복습 하셨나요?"#,
         #"\#(nickname)님,\#n깃허브 푸시하셨나요?"#,
@@ -76,11 +69,11 @@ final class MainViewModel: RxViewModelProtocol {
 
         input.viewDidLoadTrigger
             .bind(with: self) { owner, _ in
-                foodCount.accept(owner.food)
-                waterCount.accept(owner.water)
-                levelCount.accept(owner.level)
-                tamagochiRawValue.accept(owner.tamagochi)
-                tamagochiName.accept(owner.tamagochiName)
+                foodCount.accept(UserDefaultsManager.getData().food)
+                waterCount.accept(UserDefaultsManager.getData().water)
+                levelCount.accept(UserDefaultsManager.getData().level)
+                tamagochiRawValue.accept(UserDefaultsManager.getData().tamagochi)
+                tamagochiName.accept(UserDefaultsManager.getData().tamagochiName)
                 tamagochiMessage.accept(owner.messageDb.randomElement() ?? "")
             }
             .disposed(by: disposeBag)
@@ -106,7 +99,7 @@ final class MainViewModel: RxViewModelProtocol {
         input.foodButtonTapped
             .withUnretained(self)
             .map { owner, _ in
-                "밥 줘서 고마워요 \(owner.nickname)님"
+                "밥 줘서 고마워요 \(UserDefaultsManager.getData().nickname)님"
             }
             .bind(with: self) { owner, value in
                 tamagochiMessage.accept(value)
@@ -115,9 +108,10 @@ final class MainViewModel: RxViewModelProtocol {
 
         foodValue
             .bind(with: self) { owner, value in
-                owner.food += value
-                UserDefaultsManager.setData(owner.food, key: .food)
-                foodCount.accept(owner.food)
+                UserDefaultsManager.updateData { data in
+                    data.food += value
+                    foodCount.accept(value)
+                }
             }
             .disposed(by: disposeBag)
 
@@ -142,7 +136,7 @@ final class MainViewModel: RxViewModelProtocol {
         input.waterButtonTapped
             .withUnretained(self)
             .map { owner, _ in
-                "물 줘서 고마워요 \(owner.nickname)님"
+                "물 줘서 고마워요 \(UserDefaultsManager.getData().nickname)님"
             }
             .bind(with: self) { owner, value in
                 tamagochiMessage.accept(value)
@@ -151,9 +145,10 @@ final class MainViewModel: RxViewModelProtocol {
 
         waterValue
             .bind(with: self) { owner, value in
-                owner.water += value
-                UserDefaultsManager.setData(owner.water, key: .water)
-                waterCount.accept(owner.water)
+                UserDefaultsManager.updateData { data in
+                    data.water += value
+                    waterCount.accept(value)
+                }
             }
             .disposed(by: disposeBag)
 
@@ -170,9 +165,10 @@ final class MainViewModel: RxViewModelProtocol {
                 }
             }
             .bind(with: self) { owner, value in
-                owner.level = value
-                UserDefaultsManager.setData(owner.level, key: .level)
-                levelCount.accept(value)
+                UserDefaultsManager.updateData { data in
+                    data.level = value
+                    levelCount.accept(value)
+                }
             }
             .disposed(by: disposeBag)
 
@@ -188,8 +184,10 @@ final class MainViewModel: RxViewModelProtocol {
 
         tamaValue
             .bind(with: self) { owner, value in
-                tamagochiRawValue.accept(value)
-                UserDefaultsManager.setData(owner.tamagochi, key: .tamagochi)
+                UserDefaultsManager.updateData { data in
+                    data.tamagochi = value
+                    tamagochiRawValue.accept(value)
+                }
             }
             .disposed(by: disposeBag)
 
@@ -197,6 +195,6 @@ final class MainViewModel: RxViewModelProtocol {
     }
 
     func loadData() {
-        tamaValue.accept(tamagochi)
+        tamaValue.accept(UserDefaultsManager.getData().tamagochi)
     }
 }

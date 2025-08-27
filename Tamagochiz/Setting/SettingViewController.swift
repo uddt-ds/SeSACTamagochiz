@@ -56,7 +56,7 @@ final class SettingViewController: UIViewController {
                     .bind(with: self) { owner, _ in
                         switch row {
                         case 0:
-                            let viewModel = NameChangeViewModel(currentNickname: UserDefaultsManager.nickname)
+                            let viewModel = NameChangeViewModel(currentNickname: UserDefaultsManager.getData().nickname)
                             let vc = NameChangeViewController(viewModel: viewModel)
                             owner.navigationItem.backButtonTitle = ""
                             owner.navigationController?.pushViewController(vc, animated: true)
@@ -69,7 +69,7 @@ final class SettingViewController: UIViewController {
                             let noAction = UIAlertAction(title: "아냐!", style: .default)
                             //TODO: 여기는 Rx에 맞게 확장하면 좋은 구조가 될거 같음
                             let okAction = UIAlertAction(title: "웅", style: .default) { _ in
-                                UserDefaultsManager.reset()
+                                UserDefaultsManager.removeData(key: .userData)
                                 let vc = TamagochiViewController()
                                 owner.navigationController?.setViewControllers([vc], animated: true)
                             }
@@ -108,7 +108,7 @@ final class SettingViewController: UIViewController {
                     let noAction = UIAlertAction(title: "아냐!", style: .default)
                     //TODO: 여기는 Rx에 맞게 확장하면 좋은 구조가 될거 같음
                     let okAction = UIAlertAction(title: "웅", style: .default) { _ in
-                        UserDefaultsManager.reset()
+                        UserDefaultsManager.removeData(key: .userData)
                         let vc = TamagochiViewController()
                         owner.navigationController?.setViewControllers([vc], animated: true)
                     }

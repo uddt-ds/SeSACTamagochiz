@@ -113,10 +113,12 @@ final class TamagochiViewController: UIViewController {
 
         collectionView.rx.modelSelected(TamagochiModel.self)
             .bind(with: self) { owner, model in
-                let tamagochi = UserDefaultsManager.tamagochi
+                let tamagochi = UserDefaultsManager.getData().tamagochi
 
-                UserDefaultsManager.setData(model.name, key: .tamagochiName)
-                UserDefaultsManager.setData(model.tamaCategory.rawValue, key: .tamagochi)
+                UserDefaultsManager.updateData { data in
+                    data.tamagochi = model.tamaCategory.rawValue
+                    data.tamagochiName = model.name
+                }
 
                 if tamagochi == 0 {
                     let viewModel = TamagochiPopupViewModel(tamaModel: model, buttonTitle: "시작하기")

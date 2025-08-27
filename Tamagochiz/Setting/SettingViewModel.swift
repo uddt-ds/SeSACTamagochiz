@@ -37,7 +37,7 @@ final class SettingViewModel: RxViewModelProtocol {
                 let data = owner.tableViewTitleData.map { $0.rawValue }
 
                 for i in 0..<data.count {
-                    let nickname = UserDefaultsManager.nickname
+                    let nickname = UserDefaultsManager.getData().nickname
                     let tableViewData = TableViewDataModel(nickname: nickname, image: imageData[i], title: data[i])
                     dataArr.append(tableViewData)
                 }

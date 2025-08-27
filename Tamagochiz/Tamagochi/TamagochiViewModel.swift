@@ -17,7 +17,7 @@ final class TamagochiViewModel: RxViewModelProtocol {
         TamagochiModel(tamaCategory: .tama3, name: "반짝반짝 다마고치", image: "3-6", tamaMessage: "저는 반짝반짝 다마고치에요 키는 10km 몸무게는 12톤이에요 속도는 아주 빨라요!")
     ]
 
-    var tamagochi = UserDefaultsManager.tamagochi
+    var tamagochi = UserDefaultsManager.getData().tamagochi
 
     var disposeBag = DisposeBag()
 

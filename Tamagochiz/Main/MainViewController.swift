@@ -112,7 +112,7 @@ final class MainViewController: UIViewController {
     }
 
     private func setupNavigationBar() {
-        self.navigationItem.title = "\(viewModel.nickname)님의 다마고치"
+        self.navigationItem.title = "\(UserDefaultsManager.getData().nickname)님의 다마고치"
     }
 
     private func designBulloonMessage() {

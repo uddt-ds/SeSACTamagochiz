@@ -24,7 +24,7 @@ final class TabBarController: UITabBarController {
     }
 
     private func setupView() {
-        let tamagochi = UserDefaultsManager.tamagochi
+        let tamagochi = UserDefaultsManager.getData().tamagochi
 
         if tamagochi == 0 {
             let vc = TamagochiViewController()
