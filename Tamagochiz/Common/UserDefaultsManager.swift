@@ -27,7 +27,7 @@ final class UserDefaultsManager {
 
     static func setData(value: UserData, key: Key) {
         if let encodedData = try? JSONEncoder().encode(value) {
-            UserDefaults.standard.set(value, forKey: key.rawValue)
+            UserDefaults.standard.set(encodedData, forKey: key.rawValue)
         }
     }
 
