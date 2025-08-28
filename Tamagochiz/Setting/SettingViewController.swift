@@ -71,7 +71,7 @@ final class SettingViewController: UIViewController {
                             let okAction = UIAlertAction(title: "웅", style: .default) { _ in
                                 UserDefaultsManager.removeData(key: .userData)
                                 let vc = TamagochiViewController()
-                                owner.navigationController?.setViewControllers([vc], animated: true)
+                                owner.changeRootVC()
                             }
                             alert.addAction(noAction)
                             alert.addAction(okAction)
@@ -109,8 +109,7 @@ final class SettingViewController: UIViewController {
                     //TODO: 여기는 Rx에 맞게 확장하면 좋은 구조가 될거 같음
                     let okAction = UIAlertAction(title: "웅", style: .default) { _ in
                         UserDefaultsManager.removeData(key: .userData)
-                        let vc = TamagochiViewController()
-                        owner.navigationController?.setViewControllers([vc], animated: true)
+                        owner.changeRootVC()
                     }
                     alert.addAction(noAction)
                     alert.addAction(okAction)
@@ -120,5 +119,20 @@ final class SettingViewController: UIViewController {
                 }
             }
             .disposed(by: disposeBag)
+    }
+
+    func changeRootVC() {
+        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                let sceneDelegate = windowScene.delegate as? SceneDelegate else { return }
+
+        let vc = TabBarController()
+        sceneDelegate.window?.rootViewController = vc
+        sceneDelegate.window?.makeKeyAndVisible()
+
+        guard let window = sceneDelegate.window else { return }
+
+        UIView.transition(with: window, duration: 0.5, options: .transitionCrossDissolve) {
+            print("전환 되었습니다")
+        }
     }
 }

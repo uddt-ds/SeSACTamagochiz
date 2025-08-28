@@ -122,17 +122,33 @@ final class TamagochiViewController: UIViewController {
 
                 if tamagochi == 0 {
                     let viewModel = TamagochiPopupViewModel(tamaModel: model, buttonTitle: "시작하기")
-                    let vc = TamagochiPopupViewController(viewModel: viewModel, okButtonTapped: owner.pushMainView)
+                    let vc = TamagochiPopupViewController(viewModel: viewModel, okButtonTapped: owner.changeRootVC)
                     vc.modalPresentationStyle = .overCurrentContext
                     owner.present(vc, animated: false)
                 } else {
                     let viewModel = TamagochiPopupViewModel(tamaModel: model, buttonTitle: "변경하기")
-                    let vc = TamagochiPopupViewController(viewModel: viewModel, okButtonTapped: owner.pushMainView)
+                    let vc = TamagochiPopupViewController(viewModel: viewModel, okButtonTapped: owner.changeRootVC)
                     vc.modalPresentationStyle = .overCurrentContext
                     owner.present(vc, animated: false)
                 }
             }
             .disposed(by: disposeBag)
+    }
+
+    private func changeRootVC() {
+        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+              let sceneDelegate = windowScene.delegate as? SceneDelegate else { return }
+
+        let vc = TabBarController()
+
+        sceneDelegate.window?.rootViewController = vc
+        sceneDelegate.window?.makeKeyAndVisible()
+
+        guard let window = sceneDelegate.window else { return }
+
+        UIView.transition(with: window, duration: 0.5, options: .transitionCrossDissolve) {
+            print("전환 되었습니다")
+        }
     }
 
     private func pushMainView() {
