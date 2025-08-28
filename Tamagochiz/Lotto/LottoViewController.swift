@@ -44,7 +44,7 @@ final class LottoViewController: UIViewController {
         super.viewDidLoad()
         configureView()
         bind()
-        makeGesture()
+
     }
 
     private func configureView() {
@@ -88,6 +88,16 @@ final class LottoViewController: UIViewController {
             .disposed(by: disposeBag)
 
 
+        let gesture = UITapGestureRecognizer()
+        view.addGestureRecognizer(gesture)
+
+        let gestureTap = gesture.rx.event
+
+        gestureTap
+            .bind(with: self) { owner, _ in
+                owner.view.endEditing(true)
+            }
+            .disposed(by: disposeBag)
 
         // 2단계
 //        button.rx.tap
@@ -125,16 +135,5 @@ final class LottoViewController: UIViewController {
 //            }
 //            .disposed(by: disposeBag)
 
-    }
-
-    private func makeGesture() {
-        let gesture = UITapGestureRecognizer()
-        view.addGestureRecognizer(gesture)
-
-        gesture.rx.event
-            .bind(with: self) { owner, _ in
-                owner.view.endEditing(true)
-            }
-            .disposed(by: disposeBag)
     }
 }
