@@ -104,13 +104,27 @@ final class NameChangeViewController: UIViewController {
                 UserDefaultsManager.updateData { data in
                     data.nickname = value
                 }
-                let vc = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "MainViewController")
                 owner.navigationItem.backButtonTitle = ""
-                owner.navigationController?.setViewControllers([vc], animated: true)
+                owner.changeRootVC()
             }
             .disposed(by: disposeBag)
     }
 
+    private func changeRootVC() {
+        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+              let sceneDelegate = windowScene.delegate as? SceneDelegate else { return }
+
+
+        let vc = TabBarController()
+        sceneDelegate.window?.rootViewController = vc
+        sceneDelegate.window?.makeKeyAndVisible()
+
+        guard let window = sceneDelegate.window else { return }
+
+        UIView.transition(with: window, duration: 0.5, options: .transitionCrossDissolve) {
+            print("전환 되었습니다")
+        }
+    }
 }
 
 extension NameChangeViewController {
