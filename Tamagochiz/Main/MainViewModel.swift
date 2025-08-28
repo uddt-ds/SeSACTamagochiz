@@ -35,7 +35,6 @@ final class MainViewModel: RxViewModelProtocol {
     let tamaName = BehaviorRelay(value: "")
 
     struct Input {
-        let viewDidLoadTrigger: Observable<Void>
         let foodTextField: ControlProperty<String>
         let waterTextField: ControlProperty<String>
         let foodButtonTapped: ControlEvent<Void>
@@ -43,7 +42,6 @@ final class MainViewModel: RxViewModelProtocol {
     }
 
     struct Output {
-//        let userData: BehaviorRelay<UserModel>
         let foodCount: BehaviorRelay<Int>
         let waterCount: BehaviorRelay<Int>
         let levelCount: BehaviorRelay<Int>
@@ -57,26 +55,16 @@ final class MainViewModel: RxViewModelProtocol {
 
     func transform(input: Input) -> Output {
 
-        let foodCount = BehaviorRelay(value: 0)
-        let waterCount = BehaviorRelay(value: 0)
-        let levelCount = BehaviorRelay(value: 0)
-        let tamagochiRawValue = BehaviorRelay(value: 0)
-        let tamagochiName = BehaviorRelay(value: "")
-        let tamagochiMessage = BehaviorRelay(value: "")
+        let userData = UserDefaultsManager.getData()
+        let foodCount = BehaviorRelay(value: userData.food)
+        let waterCount = BehaviorRelay(value: userData.water)
+        let levelCount = BehaviorRelay(value: userData.level)
+        let tamagochiRawValue = BehaviorRelay(value: userData.tamagochi)
+        let tamagochiName = BehaviorRelay(value: userData.tamagochiName)
+        let tamagochiMessage = BehaviorRelay(value: messageDb.randomElement() ?? "")
         let foodErrorMessage = PublishRelay<String>()
         let waterErrorMessage = PublishRelay<String>()
         let totalReulstLabel = BehaviorRelay(value: "")
-
-        input.viewDidLoadTrigger
-            .bind(with: self) { owner, _ in
-                foodCount.accept(UserDefaultsManager.getData().food)
-                waterCount.accept(UserDefaultsManager.getData().water)
-                levelCount.accept(UserDefaultsManager.getData().level)
-                tamagochiRawValue.accept(UserDefaultsManager.getData().tamagochi)
-                tamagochiName.accept(UserDefaultsManager.getData().tamagochiName)
-                tamagochiMessage.accept(owner.messageDb.randomElement() ?? "")
-            }
-            .disposed(by: disposeBag)
 
         input.foodButtonTapped
             .withLatestFrom(input.foodTextField)
@@ -191,7 +179,15 @@ final class MainViewModel: RxViewModelProtocol {
             }
             .disposed(by: disposeBag)
 
-        return Output(foodCount: foodCount, waterCount: waterCount, levelCount: levelCount, tamagochiRawValue: tamagochiRawValue, tamagochiName: tamagochiName, tamagochiMessage: tamagochiMessage, foodErrorMessage: foodErrorMessage, waterErrorMessage: waterErrorMessage, totalResultLabel: totalReulstLabel)
+        return Output(foodCount: foodCount,
+                      waterCount: waterCount,
+                      levelCount: levelCount,
+                      tamagochiRawValue: tamagochiRawValue,
+                      tamagochiName: tamagochiName,
+                      tamagochiMessage: tamagochiMessage,
+                      foodErrorMessage: foodErrorMessage,
+                      waterErrorMessage: waterErrorMessage,
+                      totalResultLabel: totalReulstLabel)
     }
 
     func loadData() {

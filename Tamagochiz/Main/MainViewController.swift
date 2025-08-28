@@ -53,9 +53,7 @@ final class MainViewController: UIViewController {
 
     private func bind() {
 
-        let viewDidLoadTrigger = Observable.just(())
-
-        let input = MainViewModel.Input(viewDidLoadTrigger: viewDidLoadTrigger, foodTextField: foodTextField.rx.text.orEmpty, waterTextField: waterTextField.rx.text.orEmpty, foodButtonTapped: foodButton.rx.tap, waterButtonTapped: waterButton.rx.tap)
+        let input = MainViewModel.Input(foodTextField: foodTextField.rx.text.orEmpty, waterTextField: waterTextField.rx.text.orEmpty, foodButtonTapped: foodButton.rx.tap, waterButtonTapped: waterButton.rx.tap)
 
         let output = viewModel.transform(input: input)
 
